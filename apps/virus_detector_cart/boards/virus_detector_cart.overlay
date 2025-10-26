@@ -1,0 +1,89 @@
+&uart0 { status = "disabled"; };
+&uart1 { status = "disabled"; };
+&i2c0 { status = "disabled"; };
+&i2c1 { status = "disabled"; };
+&spi0 { status = "disabled"; };
+&spi1 { status = "disabled"; };
+&spi3 { status = "disabled"; };
+&qspi { status = "disabled"; };
+// &pwm0 { status = "disabled"; };
+// &pwm1 { status = "disabled"; };
+// &pwm2 { status = "disabled"; };
+// &pwm3 { status = "disabled"; };
+&adc { status = "disabled"; };
+// &gpio0 { status = "disabled"; };
+// &gpio1 { status = "disabled"; };
+// &flash_controller { status = "disabled"; };
+// &cryptocell { status = "disabled"; };
+&rtc0 { status = "disabled"; };
+&rtc1 { status = "disabled"; };
+&timer0 { status = "disabled"; };
+&timer1 { status = "disabled"; };
+&timer2 { status = "disabled"; };
+&timer3 { status = "disabled"; };
+&timer4 { status = "disabled"; };
+
+// /* Disable the LEDs and buttons */
+&led0 { status = "disabled"; };
+&led1 { status = "disabled"; };
+&led2 { status = "disabled"; };
+&led3 { status = "disabled"; };
+&button0 { status = "disabled"; };
+&button1 { status = "disabled"; };
+&button2 { status = "disabled"; };
+&button3 { status = "disabled"; };
+
+&uicr {
+    nfct-pins-as-gpios;
+};
+
+/{
+    custompwms {
+        compatible = "pwm-leds";
+    
+        custompwm0: custom_pwm_0 {
+            pwms =  <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>, 
+                    <&pwm0 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>,
+                    <&pwm0 2 PWM_MSEC(20) PWM_POLARITY_NORMAL>,
+                    <&pwm0 3 PWM_MSEC(20) PWM_POLARITY_NORMAL>
+                   ;
+        };
+    };
+    aliases {
+        mycustompwm = &custompwm0;
+    };
+};
+
+&pinctrl {
+    pwm0_default: pwm0_default {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 1, 04)>,
+            <NRF_PSEL(PWM_OUT1, 1, 06)>,
+            <NRF_PSEL(PWM_OUT2, 1, 00)>;
+            // <NRF_PSEL(PWM_OUT3, 1, 11)>;
+			nordic,invert;
+		};
+	};
+	pwm0_sleep: pwm0_sleep {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 1, 04)>,
+            <NRF_PSEL(PWM_OUT1, 1, 06)>,
+            <NRF_PSEL(PWM_OUT2, 1, 00)>;
+            // <NRF_PSEL(PWM_OUT3, 1, 11)>;
+			low-power-enable;
+		};
+	};
+};
+
+/ {
+	zephyr,user {
+		track0-gpios = <&gpio0 2 0>;
+		track1-gpios = <&gpio0 29 0>;
+		track2-gpios = <&gpio0 31 0>;
+		track3-gpios = <&gpio1 15 0>;
+        valve0-gpios = <&gpio1 13 0>;
+        valve1-gpios = <&gpio1 11 0>;
+        valve2-gpios = <&gpio0 10 0>;
+        valve3-gpios = <&gpio0 9 0>;
+	};
+};

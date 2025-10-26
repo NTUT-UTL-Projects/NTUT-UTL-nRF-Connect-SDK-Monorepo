@@ -1,0 +1,14 @@
+#pragma once
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+int ad5940_intc1_lock_boardcast(void);
+
+int ad5940_intc1_lock_wait(void);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,0 +1,4 @@
+[submodule "utils/driver/ad5940/library"]
+	path = utils/driver/ad5940/library
+	url = https://github.com/analogdevicesinc/ad5940lib.git
+	branch = master
