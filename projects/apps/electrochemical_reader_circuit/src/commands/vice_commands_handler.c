@@ -2,7 +2,7 @@
 
 #define VICE_COMMANDS_COUNTER_MAX_LEN 100
 
-void vice_commands_execute(const vice_commands_ctx *const ctx)
+void vice_commands_handler(const vice_commands_ctx *const ctx)
 {
     uint16_t len = atomic_load(ctx->vice_commands_buffer_ctx->curr_len);
     uint8_t _temp_buffer[len];

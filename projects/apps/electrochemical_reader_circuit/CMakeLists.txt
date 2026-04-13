@@ -8,9 +8,6 @@ endif()
 
 project(electrochemical_reader_circuit)
 
-message("AAAAA ${ZEPHYR_BASE}")
-message("BBBBB ${CONFIG_ZEPHYR_BASE}")
-
 include(FetchContent)
 
 if(CONFIG_MY_BUILD_JOHNNY_OVAL_BOARD)
