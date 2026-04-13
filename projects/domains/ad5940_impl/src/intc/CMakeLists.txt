@@ -1,0 +1,7 @@
+if(ZEPHYR_BASE)
+    add_subdirectory(zephyr)
+elseif(CONFIG_STM32)
+elseif(BUILD_FAKE)
+else()
+    message(FATAL_ERROR "Unsupported MCU configuration")
+endif()

@@ -1,0 +1,38 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20
+    },
+    "configurePresets": [
+        {
+            "name": "build_johnny_oval_board",
+            "displayName": "Build for Johnny Oval Board",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build_johnny_oval_board",
+            "cacheVariables": {
+                "APP_BUILD_JOHNNY_OVAL_BOARD": "ON",
+                "BOARD": "nrf52840dk/nrf52840",
+                "CONF_FILE": "prj.conf;../../domains/peripheral_nus/prj.conf;boards/johnny_oval_board/prj.conf",
+                "DTC_OVERLAY_FILE": "boards/johnny_oval_board/app.overlay",
+                "DEBUG_THREAD_INFO": true,
+                "CONFIG_DEBUG_OPTIMIZATIONS": true,
+                "CONFIG_DEBUG_THREAD_INFO": true,
+                "electrochemical_reader_circuit_DEBUG_THREAD_INFO": false
+            }
+        },
+        {
+            "name": "build_host_demo",
+            "displayName": "Build for Host Demo",
+            "generator": "Ninja",
+            "description": "Preset to build a host demo",
+            "binaryDir": "${sourceDir}/build_host_demo",
+            "cacheVariables": {
+                "APP_BUILD_HOST_DEMO": "ON",
+                "BOARD": "native_sim/native/64",
+                "BUILD_FAKE": "ON",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        }
+    ]
+}
