@@ -5,31 +5,41 @@ extern "C"
 {
 #endif
 
-#include "main_commands.h"
 #include "vice_commands.h"
 
-#include "ad5940.h"
-
-#include "hardware.h"
+#include "ad5940_controller.h"
 
 #include <stdatomic.h>
 #include <stdint.h>
 
-#define VICE_COMMANDS_BUFF_LEN 2048
-extern uint8_t vice_commands_buff[VICE_COMMANDS_BUFF_LEN];
-extern volatile atomic_uint_fast16_t vice_commands_buff_final_len;
+typedef struct
+{
+    uint8_t *buffer;
+    volatile atomic_bool *allow_execute_flag;
+    volatile atomic_uint_fast16_t *curr_len;
+    uint16_t max_len;
+} vice_commands_buffer_ctx;
+typedef struct
+{
+    AD5940_CONTROLLER_TRIGGER_PARA *ad5940_controller_trigger_para;
 
-extern fImpPol_Type HsRtiaCal;
-extern LPDACPara_Type LpDacPara;
-extern fImpPol_Type LpRtiaCal;
+    AD5940_CONTROLLER_CAL_PARA *ad5940_controller_cal_para;
 
-extern uint32_t ad5940_adc_fifo_buff[];
-extern volatile atomic_uint_fast16_t ad5940_adc_target_len;
-extern volatile atomic_uint_fast16_t ad5940_adc_curr_len;
+    fImpPol_Type *HsRtiaCal;
+    LPDACPara_Type *LpDacPara;
+    fImpPol_Type *LpRtiaCal;
 
-extern volatile atomic_uint_fast16_t bluetooth_to_ad5940_adc_curr_len;
+    volatile atomic_uint_fast16_t *ad5940_adc_target_len;
+    volatile atomic_uint_fast16_t *ad5940_adc_curr_len;
 
-void vice_commands_handler(void);
+    void (*ad5940_trigger_pre_event)(void);
+
+    void (*delay_unit)();
+
+    vice_commands_buffer_ctx *vice_commands_buffer_ctx;
+} vice_commands_ctx;
+
+void vice_commands_handler(const vice_commands_ctx *const ctx);
 
 #ifdef __cplusplus
 }

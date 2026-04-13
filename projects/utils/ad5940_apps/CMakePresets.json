@@ -7,11 +7,11 @@
       "description": "Preset to build a demo",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "AD5940_APPS_BUILD_DEMO": "ON",
         "CMAKE_C_STANDARD": "23",
         "CMAKE_C_STANDARD_REQUIRED": "ON",
         "CMAKE_C_EXTENSIONS": "OFF",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "MY_BUILD_DEMO": "ON"
       }
     },
     {
@@ -20,11 +20,11 @@
       "description": "Preset to build tests",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "AD5940_APPS_BUILD_TESTS": "ON",
         "CMAKE_C_STANDARD": "23",
         "CMAKE_C_STANDARD_REQUIRED": "ON",
         "CMAKE_C_EXTENSIONS": "OFF",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "MY_BUILD_TESTS": "ON"
       }
     }
   ]

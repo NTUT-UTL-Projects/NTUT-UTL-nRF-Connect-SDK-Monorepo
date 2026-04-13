@@ -7,7 +7,7 @@
       "description": "Preset to build a demo",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "AD5940_IMPL_BUILD_DEMO": "ON",
+        "MY_BUILD_DEMO": "ON",
         "BUILD_FAKE": "ON",
         "CMAKE_C_STANDARD": "23",
         "CMAKE_C_STANDARD_REQUIRED": "ON",
@@ -21,7 +21,7 @@
       "description": "Preset to build tests",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
-        "AD5940_IMPL_BUILD_TESTS": "ON",
+        "MY_BUILD_TESTS": "ON",
         "BUILD_FAKE": "ON",
         "CMAKE_C_STANDARD": "23",
         "CMAKE_C_STANDARD_REQUIRED": "ON",

@@ -27,7 +27,6 @@ typedef enum {
 	#undef X
 } VICE_COMMANDS_ENUM;
 
-#define VICE_COMMANDS_DELAY_UNIT(t) K_MSEC(t)
 #define VICE_COMMANDS_DELAY_TYPE uint32_t
 
 #define VICE_COMMANDS_SHIFT_TYPE uint8_t

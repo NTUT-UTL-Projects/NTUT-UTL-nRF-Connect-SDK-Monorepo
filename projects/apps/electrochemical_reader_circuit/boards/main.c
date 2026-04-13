@@ -8,6 +8,37 @@
 #include <zephyr/bluetooth/services/nus.h>
 
 // ==================================================
+// Commands
+// ==================================================
+
+static main_commands_ctx main_ctx;
+static vice_commands_ctx vice_ctx;
+
+#define VICE_COMMANDS_BUFF_LEN 2048
+static uint8_t vice_commands_buff[VICE_COMMANDS_BUFF_LEN];
+static volatile atomic_uint_fast16_t vice_commands_buff_curr_len = 0;
+
+volatile atomic_bool vice_allow_execute_flag = false;
+
+static vice_commands_buffer_ctx vice_commands_buff_ctx = {
+	.allow_execute_flag = &vice_allow_execute_flag,
+	.buffer = vice_commands_buff,
+	.curr_len = &vice_commands_buff_curr_len,
+	.max_len = VICE_COMMANDS_BUFF_LEN,
+};
+
+#define VICE_COMMANDS_DELAY_UNIT K_MSEC(1)
+
+void commands_delay_unit(void)
+{
+	k_sleep(VICE_COMMANDS_DELAY_UNIT);
+	return;
+}
+
+// TODO
+void todo(void){}
+
+// ==================================================
 // Bluetooth
 // ==================================================
 
@@ -22,7 +53,7 @@ static struct bt_nus_cb nus_listener = {
 // ==================================================
 
 #define SEQGenBuffLen 1000
-uint32_t SEQGenBuff[SEQGenBuffLen];
+static uint32_t SEQGenBuff[SEQGenBuffLen];
 
 #define AD5940_DataType DATATYPE_SINC2
 
@@ -67,7 +98,7 @@ K_THREAD_STACK_DEFINE(vice_commands_runner_stack, 16384);
 #define COMMANDS_DELAY K_USEC(10)
 
 void AD5940_STOP(void) {
-	atomic_store(&main_commands_flag[MAIN_COMMANDS_START_VICE_BUFF], false);
+	atomic_store(&vice_allow_execute_flag, false);
 	// Refer to page 107 of the datasheet
 	// Enable AFE to enter sleep mode.
 	AD5940_SleepKeyCtrlS(SLPKEY_UNLOCK); /* Unlock so sequencer can put AD5940 to sleep */
@@ -95,7 +126,13 @@ void bluetooth_to_main_commands_runner(void)
 
 		uint8_t buffer[len];
 		peripheral_nus_received_data_get_data(buffer);
-		main_commands_handler(buffer, len);
+
+		main_ctx.main_commands_buffer_ctx = &(main_commands_buffer_ctx) {
+			.buffer = buffer,
+			.len = len,
+		};
+		main_commands_handler(&main_ctx);
+		
 		k_sleep(COMMANDS_DELAY);
 	}
 	return;
@@ -105,9 +142,9 @@ void bluetooth_to_main_commands_runner(void)
 // AD5940 ADC FIFO task
 
 #define AD5940_ADC_FIFO_BUFF_LEN 100
-uint32_t ad5940_adc_fifo_buff[AD5940_ADC_FIFO_BUFF_LEN];
-volatile atomic_uint_fast32_t ad5940_adc_target_len = 0;
-volatile atomic_uint_fast32_t ad5940_adc_curr_len = 0;
+static uint32_t ad5940_adc_fifo_buff[AD5940_ADC_FIFO_BUFF_LEN];
+static volatile atomic_uint_fast32_t ad5940_adc_target_len = 0;
+static volatile atomic_uint_fast32_t ad5940_adc_curr_len = 0;
 
 void ad5940_adc_fifo_task_runner(void)
 {
@@ -139,7 +176,12 @@ void ad5940_adc_fifo_task_runner(void)
 // --------------------------------------------------
 // Bluetooth send AD5940 ADC FIFO
 
-volatile atomic_uint_fast16_t bluetooth_to_ad5940_adc_curr_len = 0;
+static volatile atomic_uint_fast16_t bluetooth_to_ad5940_adc_curr_len = 0;
+
+void reset_bluetooth_to_ad5940_adc_curr_len(void)
+{
+	atomic_store(&bluetooth_to_ad5940_adc_curr_len, 0);
+}
 
 void bluetooth_send_ad5940_adc_fifo_runner(void)
 {
@@ -187,18 +229,18 @@ void vice_commands_runner(void)
 {
 	while (true)
 	{
-		if (atomic_load(&main_commands_flag[MAIN_COMMANDS_START_VICE_BUFF]) == false)
+		if (atomic_load(&vice_allow_execute_flag) == false)
 		{
 			k_sleep(COMMANDS_DELAY);
 			continue;
 		}
 
-		if (atomic_load(&vice_commands_buff_final_len) == 0)
+		if (atomic_load(vice_commands_buff_ctx.curr_len) == 0)
 		{
 			k_sleep(COMMANDS_DELAY);
 			continue;
 		}
-		vice_commands_handler();
+		vice_commands_handler(&vice_ctx);
 	}
 	return;
 }
@@ -209,6 +251,31 @@ void vice_commands_runner(void)
 
 int main(void)
 {
+	// ========================================
+	// Init commands
+	vice_ctx = (vice_commands_ctx) {
+		.ad5940_adc_curr_len = &ad5940_adc_curr_len,
+		.ad5940_adc_target_len = &ad5940_adc_target_len,
+		.ad5940_controller_cal_para = &hardware.ad5940_controller_cal_para,
+		.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
+		.delay_unit = commands_delay_unit,
+		.HsRtiaCal = &HsRtiaCal,
+		.LpDacPara = &LpDacPara,
+		.LpRtiaCal = &LpRtiaCal,
+		.vice_commands_buffer_ctx = &vice_commands_buff_ctx,
+	};
+
+	main_ctx = (main_commands_ctx) {
+		.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
+		.ad5940_stop = AD5940_STOP,
+		.circuit_reboot = todo,
+		// .main_commands_buffer
+		.ad5940_reset_option = hardware.ad5940_controller_reset,
+		.ad5940_SEQGenBuff = SEQGenBuff,
+		.ad5940_SEQGenBuffLen = SEQGenBuffLen,
+		.vice_commands_buffer_ctx = vice_ctx.vice_commands_buffer_ctx,
+	};
+
 	// ========================================
 	// Init hardware
 

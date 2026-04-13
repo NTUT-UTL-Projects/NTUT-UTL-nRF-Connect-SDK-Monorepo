@@ -3,8 +3,6 @@
 #include "ad5940_controller.h"
 #include "ad5940_impl.h"
 
-#include "ad5940_intcx_lock_impl_zephyr.h"
-
 int ad5940_intc_init(void)
 {
     int err;

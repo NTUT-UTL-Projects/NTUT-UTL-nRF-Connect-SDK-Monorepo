@@ -23,8 +23,14 @@ add_subdirectory(
     peripheral_nus
 )
 
-add_subdirectory(${ROOT_DIR}/utils/gpio/src gpio)
-target_link_libraries(app PRIVATE gpio)
+# add_subdirectory(
+#     ${ROOT_DIR}/utils/gpio/src
+#     gpio
+# )
+# target_link_libraries(app PRIVATE gpio)
 
-add_subdirectory(${ROOT_DIR}/utils/spi/src spi)
-target_link_libraries(app PRIVATE spi)
+# add_subdirectory(
+#     ${ROOT_DIR}/utils/spi/src
+#     spi
+# )
+# target_link_libraries(app PRIVATE spi)

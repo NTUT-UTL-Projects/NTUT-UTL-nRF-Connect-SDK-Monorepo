@@ -3,6 +3,10 @@
 #define MAIN_BUFFER_LEN 8192
 uint8_t main_buffer[MAIN_BUFFER_LEN] = {0};
 
+void run_none(void) {}
+
+static main_commands_ctx main_ctx;
+
 #define DEMO_USE_LPDAC
 #define DEMO_USE_HSTIA
 

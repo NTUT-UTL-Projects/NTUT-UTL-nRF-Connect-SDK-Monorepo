@@ -11,7 +11,6 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build_johnny_oval_board",
             "cacheVariables": {
-                "APP_BUILD_JOHNNY_OVAL_BOARD": "ON",
                 "BOARD": "nrf52840dk/nrf52840",
                 "CONF_FILE": "prj.conf;../../domains/peripheral_nus/prj.conf;boards/johnny_oval_board/prj.conf",
                 "DTC_OVERLAY_FILE": "boards/johnny_oval_board/app.overlay",
@@ -28,9 +27,9 @@
             "description": "Preset to build a host demo",
             "binaryDir": "${sourceDir}/build_host_demo",
             "cacheVariables": {
-                "APP_BUILD_HOST_DEMO": "ON",
+                "MY_BUILD_FAKE_IMPL": "ON",
+                "MY_BUILD_HOST_DEMO": "ON",
                 "BOARD": "native_sim/native/64",
-                "BUILD_FAKE": "ON",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         }

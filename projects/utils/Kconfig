@@ -6,14 +6,17 @@
 
 menu "Utils"
 
-config NRF_CONNECT_SDK
+config MY_BUILD_NRF_CONNECT_SDK
     bool "Enable support for nRF Connect SDK"
     select ZEPHYR_BASE
 
-config STM32
+config MY_BUILD_STM32
     bool "Enable support for STM32"
 
-config ZEPHYR_BASE
+config MY_BUILD_ZEPHYR_BASE
     bool "Enable support for ZEPHYR_BASE"
+
+config MY_BUILD_FAKE_IMPL
+    bool "Enable fake implementations"
 
 endmenu
