@@ -8,7 +8,7 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "MY_BUILD_DEMO": "ON",
-        "BUILD_FAKE": "ON",
+        "CONFIG_MY_BUILD_FAKE_IMPL": "ON",
         "CMAKE_C_STANDARD": "23",
         "CMAKE_C_STANDARD_REQUIRED": "ON",
         "CMAKE_C_EXTENSIONS": "OFF",
@@ -22,7 +22,7 @@
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "MY_BUILD_TESTS": "ON",
-        "BUILD_FAKE": "ON",
+        "CONFIG_MY_BUILD_FAKE_IMPL": "ON",
         "CMAKE_C_STANDARD": "23",
         "CMAKE_C_STANDARD_REQUIRED": "ON",
         "CMAKE_C_EXTENSIONS": "OFF",

@@ -5,7 +5,7 @@ endif()
 # Libraries
 if(NOT TARGET ad5940_apps)
     add_subdirectory(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/ad5940_apps
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/ad5940_apps/src
         ad5940_apps
     )
 endif()

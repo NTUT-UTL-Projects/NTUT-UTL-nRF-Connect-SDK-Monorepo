@@ -18,8 +18,6 @@ typedef struct
 	AGPIOCfg_Type ad5940_gpio_cfg;
 } hardware_t;
 
-extern hardware_t hardware;
-
 #ifdef __cplusplus
 }
 #endif

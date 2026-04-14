@@ -26,6 +26,12 @@ target_sources(
             ${ad5940lib_SOURCE_DIR}/ad5940.h
 )
 
+# Math library
+find_library(m m)
+if(m)
+    target_link_libraries(ad5940_apps PUBLIC m)
+endif()
+
 # Subdirectories
 target_precompile_headers(
     ad5940_apps

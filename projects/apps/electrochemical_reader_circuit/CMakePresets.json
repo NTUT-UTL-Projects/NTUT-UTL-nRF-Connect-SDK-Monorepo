@@ -27,8 +27,8 @@
             "description": "Preset to build a host demo",
             "binaryDir": "${sourceDir}/build_host_demo",
             "cacheVariables": {
-                "MY_BUILD_FAKE_IMPL": "ON",
-                "MY_BUILD_HOST_DEMO": "ON",
+                "CONFIG_MY_BUILD_FAKE_IMPL": "ON",
+                "CONFIG_MY_BUILD_HOST_DEMO": "ON",
                 "BOARD": "native_sim/native/64",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }

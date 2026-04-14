@@ -21,6 +21,3 @@ target_link_libraries(
     PRIVATE
         app
 )
-
-# Subdirectory
-add_subdirectory(config)

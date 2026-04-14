@@ -1,11 +1,77 @@
-#include "config.h"
+#include "ad5940_controller.h"
+#include "commands.h"
+#include "hardware.h"
+
+#include <stdatomic.h>
+
+#define SEQGenBuffLen 1000
+static uint32_t SEQGenBuff[SEQGenBuffLen];
+
+static AD5940_CONTROLLER_TRIGGER_PARA ad5940_controller_trigger_para = {
+};
+
+static AD5940_CONTROLLER_CAL_PARA ad5940_controller_cal_para = {
+};
+
+static fImpPol_Type HsRtiaCal;
+static LPDACPara_Type LpDacPara;
+static fImpPol_Type LpRtiaCal;
+
+// --------------------------------------------------
+// AD5940 ADC FIFO task
+
+static volatile atomic_uint_fast32_t ad5940_adc_target_len = 0;
+static volatile atomic_uint_fast32_t ad5940_adc_curr_len = 0;
+
+// --------------------------------------------------
+// Main Commands
+
+#define VICE_BUFFER_LEN 8192
+static uint8_t vice_buffer[VICE_BUFFER_LEN] = {0};
+static volatile atomic_uint_fast16_t vice_commands_buff_curr_len = 0;
+static volatile atomic_bool vice_allow_execute_flag = false;
 
 #define MAIN_BUFFER_LEN 8192
-uint8_t main_buffer[MAIN_BUFFER_LEN] = {0};
+static uint8_t main_buffer[MAIN_BUFFER_LEN] = {0};
 
 void run_none(void) {}
 
-static main_commands_ctx main_ctx;
+static vice_commands_buffer_ctx vice_commands_buff_ctx = {
+    .allow_execute_flag = &vice_allow_execute_flag,
+    .buffer = vice_buffer,
+    .curr_len = &vice_commands_buff_curr_len,
+    .max_len = VICE_BUFFER_LEN,
+};
+
+static vice_commands_ctx vice_ctx = {
+	.ad5940_adc_curr_len = &ad5940_adc_curr_len,
+	.ad5940_adc_target_len = &ad5940_adc_target_len,
+	.ad5940_controller_cal_para = &ad5940_controller_cal_para,
+	.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
+	.delay_unit = run_none,
+    .HsRtiaCal = &HsRtiaCal,
+    .LpDacPara = &LpDacPara,
+    .LpRtiaCal = &LpRtiaCal,
+    .vice_commands_buffer_ctx = &vice_commands_buff_ctx,
+};
+
+static main_commands_buffer_ctx main_commands_buff_ctx = {
+    .buffer = main_buffer,
+    .len = MAIN_BUFFER_LEN,
+};
+
+static main_commands_ctx main_ctx = {
+	.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
+	.ad5940_stop = run_none,
+	.circuit_reboot = run_none,
+    .ad5940_reset_option = AD5940_CONTROLLER_RESET_OPTION_HAREWARE,
+    .ad5940_SEQGenBuff = SEQGenBuff,
+    .ad5940_SEQGenBuffLen = SEQGenBuffLen,
+    .vice_commands_buffer_ctx = &vice_commands_buff_ctx,
+    .main_commands_buffer_ctx = &main_commands_buff_ctx,
+};
+
+// --------------------------------------------------
 
 #define DEMO_USE_LPDAC
 #define DEMO_USE_HSTIA
@@ -236,7 +302,8 @@ int main(void)
         len += sizeof(lploop_cfg);
     }
 
-    main_commands_handler();
+    main_commands_handler(&main_ctx);
+    vice_commands_handler(&vice_ctx);
 
     return 0;
 }

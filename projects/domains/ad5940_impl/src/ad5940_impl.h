@@ -5,8 +5,6 @@ extern "C"
 {
 #endif
 
-#include "ad5940.h"
-
 #include "ad5940_intc0_lock.h"
 #include "ad5940_intc1_lock.h"
 

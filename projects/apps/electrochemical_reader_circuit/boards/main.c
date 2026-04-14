@@ -8,6 +8,12 @@
 #include <zephyr/bluetooth/services/nus.h>
 
 // ==================================================
+// Hardware
+// ==================================================
+
+extern hardware_t hardware;
+
+// ==================================================
 // Commands
 // ==================================================
 
@@ -18,7 +24,7 @@ static vice_commands_ctx vice_ctx;
 static uint8_t vice_commands_buff[VICE_COMMANDS_BUFF_LEN];
 static volatile atomic_uint_fast16_t vice_commands_buff_curr_len = 0;
 
-volatile atomic_bool vice_allow_execute_flag = false;
+static volatile atomic_bool vice_allow_execute_flag = false;
 
 static vice_commands_buffer_ctx vice_commands_buff_ctx = {
 	.allow_execute_flag = &vice_allow_execute_flag,

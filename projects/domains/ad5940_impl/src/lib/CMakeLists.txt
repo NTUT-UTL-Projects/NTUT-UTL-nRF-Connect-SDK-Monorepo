@@ -3,7 +3,7 @@ file(GLOB SRC_H_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 target_sources(
     ad5940_impl
-    PRIVATE
+    PUBLIC
         ${SRC_C_FILES}
     PUBLIC
         FILE_SET HEADERS
