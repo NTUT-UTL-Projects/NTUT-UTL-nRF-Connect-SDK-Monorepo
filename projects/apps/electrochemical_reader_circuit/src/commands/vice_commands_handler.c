@@ -27,6 +27,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
 
         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) _temp_buffer[curr_len];
         curr_len++;
+        printf("vice_command: %d\n", vice_command);
+
         switch (vice_command)
         {
             // --------------------------------------------------

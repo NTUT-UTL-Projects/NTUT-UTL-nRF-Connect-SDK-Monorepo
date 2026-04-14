@@ -16,7 +16,7 @@ extern "C"
 typedef struct
 {
     uint8_t *buffer;
-    const uint16_t len;
+    uint16_t len;
 } main_commands_buffer_ctx;
 typedef struct
 {

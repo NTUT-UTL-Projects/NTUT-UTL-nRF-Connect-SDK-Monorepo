@@ -11,6 +11,7 @@ void main_commands_handler(const main_commands_ctx *const ctx)
     {
         MAIN_COMMANDS_ENUM main_command = (MAIN_COMMANDS_ENUM) buffer[curr_len];
         curr_len++;
+        printf("main_command: %d\n", main_command);
         
         switch (main_command)
         {
@@ -95,15 +96,15 @@ void main_commands_handler(const main_commands_ctx *const ctx)
                 {
                     break;
                 }
-                vice_commands_write_len++;
-                memcpy(
-                    ctx->vice_commands_buffer_ctx->buffer + vice_commands_buff_curr_len,
-                    buffer + curr_len,
-                    vice_commands_write_len
-                );
-                curr_len += vice_commands_write_len;
-                atomic_store(ctx->vice_commands_buffer_ctx->curr_len, vice_commands_buff_curr_len + vice_commands_write_len);
             }
+            vice_commands_write_len++;
+            memcpy(
+                ctx->vice_commands_buffer_ctx->buffer + vice_commands_buff_curr_len,
+                buffer + curr_len,
+                vice_commands_write_len
+            );
+            curr_len += vice_commands_write_len;
+            atomic_store(ctx->vice_commands_buffer_ctx->curr_len, vice_commands_buff_curr_len + vice_commands_write_len);
             break;
 
         case MAIN_COMMANDS_START_VICE_BUFF:

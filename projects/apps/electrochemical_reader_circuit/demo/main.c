@@ -4,9 +4,13 @@
 #include <string.h>
 
 // --------------------------------------------------
+// DAC to TIA
 
 #define DEMO_USE_LPDAC
 #define DEMO_USE_HSTIA
+
+// --------------------------------------------------
+// ADC
 
 #define DEMO_ADCPga ADCPGA_1P5
 
@@ -17,6 +21,9 @@
 #define DEMO_BpNotch bTRUE
 #define DEMO_ADCSinc2Osr ADCSINC2OSR_22   /* Refer to page 57 of the datasheet for more details. */
 #define DEMO_ADCAvgNum ADCAVGNUM_2          /* Don't care because it's disabled */
+
+// --------------------------------------------------
+// AD5940 Controller
 
 static AD5940_CONTROLLER_EVENT ad5940_controller_event = {
     .event = AD5940_CONTROLLER_EVENT_DPV,
@@ -33,33 +40,13 @@ static AD5940_CONTROLLER_EVENT ad5940_controller_event = {
 };
 
 // --------------------------------------------------
+// HS Loop
 
-#define DEMO_LpAmpPwrMod LPAMPPWR_NORM
-#define DEMO_LpAmpSel LPAMP0
-#define DEMO_LpTiaRf LPTIARF_SHORT
-#define DEMO_LpTiaRload LPTIARLOAD_10R
+// This parameter is chosen arbitrarily.
+#define DEMO_DiodeClose bFALSE
 
-#define DEMO_LpDacRef LPDACREF_2P5
-#define DEMO_LpDacSrc LPDACSRC_MMR              // Use MMR data, we use LPDAC to generate bias voltage for LPTIA - the V_zero
-
-#define DEMO_PGACalType PGACALTYPE_OFFSETGAIN
-#define DEMO_VRef1p11 1.11F
-
-/**
- * Refer to pgae 87 of the datasheet.
- * This application use internal reference voltage.
- */
-#define DEMO_VRef1p82 1.82F
-#define DEMO_ADCRefVolt DEMO_VRef1p82
-
-#define DEMO_DftNum DFTNUM_16
-#define DEMO_DftSrc DFTSRC_SINC2NOTCH
-#define DEMO_HanWinEn bTRUE
-
-#define DEMO_bWithCtia bTRUE
-
+// We didn't use External Rtia
 #define DEMO_ExtRtia 0
-#define DEMO_HstiaRtiaSel HSTIARTIA_10K
 
 /**
  * Refer to page 52 of the datasheet.
@@ -79,19 +66,56 @@ static AD5940_CONTROLLER_EVENT ad5940_controller_event = {
  */
 #define DEMO_HstiaDeRtia HSTIADERTIA_OPEN
 
-// This parameter is chosen arbitrarily.
-#define DEMO_DiodeClose bFALSE
+// Refers to page 76 of the datasheet.
+#define DEMO_HstiaRtiaSel HSTIARTIA_10K
+
+#define DEMO_Dswitch 0
+#define DEMO_Nswitch 0
+#define DEMO_Pswitch 0
+#define DEMO_Tswitch (SWT_SE0LOAD | SWT_TRTIA)
+
+// --------------------------------------------------
+// LP Loop
+
+#define DEMO_LpAmpPwrMod LPAMPPWR_NORM
+
+#define DEMO_LpTiaRf LPTIARF_SHORT
+#define DEMO_LpTiaRload LPTIARLOAD_10R
+#define DEMO_LpTiaRtia LPTIARTIA_10K
+
+#define DEMO_LpDacRef LPDACREF_2P5
+#define DEMO_LpDacSrc LPDACSRC_MMR              // Use MMR data, we use LPDAC to generate bias voltage for LPTIA - the V_zero
+
+// --------------------------------------------------
+// Others
+
+#define DEMO_PGACalType PGACALTYPE_OFFSETGAIN
+#define DEMO_VRef1p11 1.11F
+
+/**
+ * Refer to pgae 87 of the datasheet.
+ * This application use internal reference voltage.
+ */
+#define DEMO_VRef1p82 1.82F
+#define DEMO_ADCRefVolt DEMO_VRef1p82
+
+#define DEMO_DftNum DFTNUM_16
+#define DEMO_DftSrc DFTSRC_SINC2NOTCH
+#define DEMO_HanWinEn bTRUE
+
+#define DEMO_bWithCtia bTRUE
 
 #define DEMO_DataType DATATYPE_SINC2
 
 #define DEMO_FifoSrc FIFOSRC_SINC2NOTCH
 
 // --------------------------------------------------
+// Commands
 
-#define DEMO_Dswitch 0
-#define DEMO_Nswitch 0
-#define DEMO_Pswitch 0
-#define DEMO_Tswitch (SWT_SE0LOAD | SWT_TRTIA)
+#define DEMO_delay 1E5
+
+// --------------------------------------------------
+// Main
 
 int main(void)
 {
@@ -104,11 +128,11 @@ int main(void)
         main_buffer[len] = vice_command;
         len++;
 
-        // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/afe_dac_tia/ad5940_electrochemical_utils_afe_dac_tia.c
-        // if use LPTIA
-        // uint32_t AfeCtrlSet = 0;
-        // if use HSTIA
+        #if defined(DEMO_USE_HSTIA)
         uint32_t AfeCtrlSet = 0 | AFECTRL_HSTIAPWR;
+        #else
+        uint32_t AfeCtrlSet = 0;
+        #endif
 
         memcpy(
             main_buffer + len,
@@ -313,10 +337,10 @@ int main(void)
                 #endif
                 #if defined(DEMO_USE_LPTIA) && !defined(DEMO_USE_HSDAC)
                 .LpTiaPwrEn = bTRUE,
-                .LpTiaRf = 0,
-                .LpTiaRload = 0,
-                .LpTiaRtia = 0,
-                #if defined(DEMO_LpTiaRtia) && DEMO_LpTiaRtia == LPTIARTIA_OPEN
+                .LpTiaRf = DEMO_LpTiaRf,
+                .LpTiaRload = DEMO_LpTiaRload,
+                .LpTiaRtia = DEMO_LpTiaRtia,
+                #if defined(DEMO_LpTiaRtia) && (DEMO_LpTiaRtia == LPTIARTIA_OPEN)
                 .LpTiaSW = 0
                     | LPTIASW(2)
                     | LPTIASW(4)
@@ -391,26 +415,64 @@ int main(void)
         );
         len += sizeof(lploop_cfg);
     }
-
-    main_commands_handler(&main_ctx);
-    vice_commands_handler(&vice_ctx);
-
-    printf("main_commands_buff_ctx: ");
-    for (size_t i = 0; i < main_commands_buff_ctx.len; i++)
     {
-        printf("0x%02x,", main_commands_buff_ctx.buffer[i]);
+        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
+        main_buffer[len] = main_command;
+        len++;
+        main_buffer[len] = vice_command;
+        len++;
+
+        VICE_COMMANDS_DELAY_TYPE delay = DEMO_delay;
+
+        memcpy(
+            main_buffer + len,
+            &delay,
+            sizeof(delay)
+        );
+        len += sizeof(delay);
+    }
+    {
+        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_shift;
+        main_buffer[len] = main_command;
+        len++;
+        main_buffer[len] = vice_command;
+        len++;
+
+        VICE_COMMANDS_SHIFT_TYPE shift = 2;
+
+        memcpy(
+            main_buffer + len,
+            &shift,
+            sizeof(shift)
+        );
+        len += sizeof(shift);
     }
 
-    printf("\n");
+    main_ctx.main_commands_buffer_ctx->len = len;
 
-    printf("vice_commands_buff_ctx: ");
+    main_commands_handler(&main_ctx);
+    printf("main_commands_buff_ctx[%d]: {", len);
+    for (size_t i = 0; i < len; i++)
+    {
+        printf("0x%02x, ", main_commands_buff_ctx.buffer[i]);
+    }
+    printf("};\n");
+
+    {
+        uint8_t trigger = MAIN_COMMANDS_START_VICE_BUFF;
+        main_commands_buff_ctx.buffer[0] = trigger;
+        main_commands_buff_ctx.len = 1;
+        main_commands_handler(&main_ctx);
+    }
+
+    vice_commands_handler(&vice_ctx);
+    printf("vice_commands_buff_ctx:[%ld]: {", vice_commands_buff_curr_len);
     uint16_t vice_commands_buff_curr_len = atomic_load(vice_commands_buff_ctx.curr_len);
     for (size_t i = 0; i < vice_commands_buff_curr_len; i++)
     {
-        printf("0x%02x,", vice_commands_buff_ctx.buffer[i]);
+        printf("0x%02x, ", vice_commands_buff_ctx.buffer[i]);
     }
-
-    printf("\n");
+    printf("};\n");
 
     return 0;
 }
