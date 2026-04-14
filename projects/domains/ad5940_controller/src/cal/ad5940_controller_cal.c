@@ -1,6 +1,11 @@
 #include "ad5940_controller_cal.h"
 #include "ad5940_utils.h"
 
+/**
+ * @brief 
+ * Refers to https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
+ * Sample 3 period of signal, 13.317Hz here. Do not use DC method, because it needs ADC/PGA calibrated firstly(but it's faster)
+ */
 #define _SamplePeriod 3
 
 #define _SettleTime10us 1E3
