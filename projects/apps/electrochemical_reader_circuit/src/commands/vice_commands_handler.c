@@ -315,7 +315,7 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
 
     while (curr_node->prev != NULL)
     {
-        *curr_node = *curr_node->prev;
+        curr_node = curr_node->prev;
         free(curr_node->next);
         curr_node->next = NULL;
     }
