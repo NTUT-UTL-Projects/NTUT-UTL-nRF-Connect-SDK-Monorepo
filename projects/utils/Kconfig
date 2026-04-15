@@ -8,7 +8,7 @@ menu "Utils"
 
 config MY_BUILD_NRF_CONNECT_SDK
     bool "Enable support for nRF Connect SDK"
-    select ZEPHYR_BASE
+    select MY_BUILD_ZEPHYR_BASE
 
 config MY_BUILD_STM32
     bool "Enable support for STM32"

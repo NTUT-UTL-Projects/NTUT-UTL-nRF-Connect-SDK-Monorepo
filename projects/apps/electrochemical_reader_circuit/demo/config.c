@@ -1,5 +1,8 @@
 #include "config.h"
 
+#include <time.h>
+#include <unistd.h>
+
 #define SEQGenBuffLen 1000
 uint32_t SEQGenBuff[SEQGenBuffLen];
 
@@ -39,12 +42,21 @@ vice_commands_buffer_ctx vice_commands_buff_ctx = {
     .max_len = VICE_BUFFER_LEN,
 };
 
+void delay(void)
+{
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 1;
+    // nanosleep suspends the calling thread
+    nanosleep(&ts, NULL);
+}
+
 vice_commands_ctx vice_ctx = {
 	.ad5940_adc_curr_len = &ad5940_adc_curr_len,
 	.ad5940_adc_target_len = &ad5940_adc_target_len,
 	.ad5940_controller_cal_para = &ad5940_controller_cal_para,
 	.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
-	.delay_unit = run_none,
+	.delay_unit = delay,
     .HsRtiaCal = &HsRtiaCal,
     .LpDacPara = &LpDacPara,
     .LpRtiaCal = &LpRtiaCal,

@@ -14,4 +14,8 @@ config MY_BUILD_JOHNNY_OVAL_BOARD
 	bool "Build for Johnny Oval Board"
 	default n
 
+config MY_BUILD_HOST_DEMO
+	bool "Build for Host Demo"
+	default n
+
 endmenu

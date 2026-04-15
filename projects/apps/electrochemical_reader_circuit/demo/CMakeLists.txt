@@ -31,3 +31,8 @@ target_link_libraries(
     PRIVATE
         app
 )
+
+target_compile_definitions(
+    app
+        PUBLIC -D CONFIG_MY_BUILD_FAKE_IMPL
+)
