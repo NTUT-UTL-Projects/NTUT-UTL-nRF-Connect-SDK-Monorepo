@@ -1,6 +1,6 @@
 #include "ad5940_const_recommand.h"
 
-void LPDAC2LPTIA_AFERefCfg(AFERefCfg_Type *const type)
+void AD5940_LPDAC2LPTIA_AFERefCfg(AFERefCfg_Type *const type)
 {
     /**
      * Enable the high-precision voltage references.
@@ -34,17 +34,17 @@ void LPDAC2LPTIA_AFERefCfg(AFERefCfg_Type *const type)
     return;
 }
 
-void LPDAC2HSTIA_AFERefCfg(AFERefCfg_Type *const type)
+void AD5940_LPDAC2HSTIA_AFERefCfg(AFERefCfg_Type *const type)
 {
-    LPDAC2LPTIA_AFERefCfg(type);
+    AD5940_LPDAC2LPTIA_AFERefCfg(type);
     return;
 }
 
 
-void HSDAC2HSTIA_AFERefCfg(AFERefCfg_Type *const type, BoolFlag VBias0En)
+void AD5940_HSDAC2HSTIA_AFERefCfg(AFERefCfg_Type *const type, BoolFlag VBias0En)
 {
 
-    LPDAC2LPTIA_AFERefCfg(type);
+    AD5940_LPDAC2LPTIA_AFERefCfg(type);
     // Refer to page 34 of the datasheet. See also the routing diagrams in Figure 22 (page 39) and Figure 37 (page 87).
     // This output is used to drive the LPDAC, or to generate a bias voltage via the LPDAC when using the HSDAC.
     if(VBias0En == bTRUE)
@@ -60,7 +60,7 @@ void HSDAC2HSTIA_AFERefCfg(AFERefCfg_Type *const type, BoolFlag VBias0En)
     return;
 }
 
-void LPDAC2LPTIA_LPDACCfg_Type(LPDACCfg_Type *const type)
+void AD5940_LPDAC2LPTIA_LPDACCfg_Type(LPDACCfg_Type *const type)
 {
 
     #if defined(CHIPSEL_594X)
@@ -77,15 +77,15 @@ void LPDAC2LPTIA_LPDACCfg_Type(LPDACCfg_Type *const type)
     return;
 }
 
-void LPDAC2HSTIA_LPDACCfg_Type(LPDACCfg_Type *const type)
+void AD5940_LPDAC2HSTIA_LPDACCfg_Type(LPDACCfg_Type *const type)
 {
-    LPDAC2LPTIA_LPDACCfg_Type(type);
+    AD5940_LPDAC2LPTIA_LPDACCfg_Type(type);
     // Refer to page 39 of the datasheet, LPPA receives feedback to support LPDAC in producing a precise output signal.
     type->LpDacSW = LPDACSW_VBIAS2LPPA | LPDACSW_VZERO2HSTIA;
     return;
 }
 
-void LPDAC2LPTIA_LPAmpCfg_Type(LPAmpCfg_Type *const type, uint32_t LpTiaRtia)
+void AD5940_LPDAC2LPTIA_LPAmpCfg_Type(LPAmpCfg_Type *const type, uint32_t LpTiaRtia)
 {
     #if defined(CHIPSEL_594X)
     type->LpAmpSel = LPAMP0;
@@ -117,7 +117,7 @@ void LPDAC2LPTIA_LPAmpCfg_Type(LPAmpCfg_Type *const type, uint32_t LpTiaRtia)
     return;
 }
 
-void LPDAC2HSTIA_LPAmpCfg_Type(LPAmpCfg_Type *const type)
+void AD5940_LPDAC2HSTIA_LPAmpCfg_Type(LPAmpCfg_Type *const type)
 {
     #if defined(CHIPSEL_594X)
     type->LpAmpSel = LPAMP0;
@@ -140,7 +140,7 @@ void LPDAC2HSTIA_LPAmpCfg_Type(LPAmpCfg_Type *const type)
     return;
 }
 
-void LPTIA2HSTIACfg_HSTIACfg_Type(HSTIACfg_Type *const type, BoolFlag VBias0En)
+void AD5940_LPTIA2HSTIACfg_HSTIACfg_Type(HSTIACfg_Type *const type, BoolFlag VBias0En)
 {
     // @see page 45 of the datasheet, With bias voltage */
     if(VBias0En)

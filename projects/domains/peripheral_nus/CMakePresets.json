@@ -6,16 +6,30 @@
     },
     "configurePresets": [
         {
-            "name": "build_demo",
-            "displayName": "Build Demo for nRF52840 DK nRF52840",
+            "name": "build_common_demo",
+            "displayName": "Build Received Send Demo for nRF52840 DK nRF52840",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "${sourceDir}/build_common_demo",
             "cacheVariables": {
                 "BOARD": "nrf52840dk/nrf52840",
-                "CONF_FILE": "prj.conf;demo/prj.conf",
-                "DEBUG_THREAD_INFO": true,
+                "CONF_FILE": "src/prj.conf;demo/common/prj.conf",
                 "CONFIG_DEBUG_OPTIMIZATIONS": true,
                 "CONFIG_DEBUG_THREAD_INFO": true,
+                "DEBUG_THREAD_INFO": true,
+                "peripheral_nus_DEBUG_THREAD_INFO": true
+            }
+        },
+        {
+            "name": "build_received_data_demo",
+            "displayName": "Build Received Send Demo for nRF52840 DK nRF52840",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build_received_data_demo",
+            "cacheVariables": {
+                "BOARD": "nrf52840dk/nrf52840",
+                "CONF_FILE": "src/prj.conf;demo/received_data/prj.conf",
+                "CONFIG_DEBUG_OPTIMIZATIONS": true,
+                "CONFIG_DEBUG_THREAD_INFO": true,
+                "DEBUG_THREAD_INFO": true,
                 "peripheral_nus_DEBUG_THREAD_INFO": true
             }
         }

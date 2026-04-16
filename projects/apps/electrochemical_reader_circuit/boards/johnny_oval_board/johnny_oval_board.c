@@ -6,9 +6,7 @@
 int ad5940_intc_init(void)
 {
     int err;
-	err = ad5940_intc0_lock_init_impl_zephyr();
-	if (err) return err;
-	err = ad5940_intc1_lock_init_impl_zephyr();
+	err = AD5940_intc1_lock_init_impl_zephyr();
 	if (err) return err;
     return 0;
 }
@@ -17,7 +15,7 @@ int ad5940_intc_wait(void)
 {
     int err;
 
-    err = ad5940_intc1_lock_wait();
+    err = AD5940_intc1_lock_wait();
     if (err) return err;
 
     return 0;
@@ -27,13 +25,13 @@ int ad5940_gpio_init(void)
 {
     int err;
 
-	err = ad5940_intc1_lock_init_impl_zephyr();
+	err = AD5940_intc1_lock_init_impl_zephyr();
 	if (err) return err;
 
 	err = AD5940_intc1_impl_zephyr_init(
 		&ad5940_gpio7_ctx,
 		&ad5940_gpio7_dt,
-		ad5940_intc1_lock_boardcast
+		AD5940_intc1_lock_boardcast
 	);
 	if (err) return err;
 

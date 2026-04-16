@@ -27,7 +27,7 @@ typedef struct
     } param;
 } AD5940_CONTROLLER_EVENT;
 
-ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE ad5940_controller_event_to_adc_number(
+ELECTROCHEMICAL_DEV_KIT_NUMBER_TYPE AD5940_controller_event_to_adc_number(
     AD5940_CONTROLLER_EVENT event
 );
 

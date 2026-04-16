@@ -12,7 +12,7 @@
             "binaryDir": "${sourceDir}/build_johnny_oval_board",
             "cacheVariables": {
                 "BOARD": "nrf52840dk/nrf52840",
-                "CONF_FILE": "prj.conf;../../domains/peripheral_nus/prj.conf;boards/johnny_oval_board/prj.conf",
+                "CONF_FILE": "prj.conf;boards/johnny_oval_board/prj.conf;../../domains/peripheral_nus/src/prj.conf;../../domains/watchdog/src/prj.conf",
                 "DTC_OVERLAY_FILE": "boards/johnny_oval_board/app.overlay",
                 "DEBUG_THREAD_INFO": true,
                 "CONFIG_DEBUG_OPTIMIZATIONS": true,

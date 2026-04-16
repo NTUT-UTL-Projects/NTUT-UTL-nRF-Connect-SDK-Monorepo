@@ -36,21 +36,25 @@ void peripheral_nus_received_data_get_len(uint16_t *len)
 	return;
 }
 
-void peripheral_nus_received_data_get_data(uint8_t *data)
+void peripheral_nus_received_data_get_data(uint8_t *data, uint16_t len)
 {
-	uint8_t *head = atomic_load(&__ring_buffer.head);
+	uint8_t *final = __ring_buffer.data + __ring_buffer.max_len;
+
 	uint8_t *tail = atomic_load(&__ring_buffer.tail);
-	if (head >= tail)
+	uint8_t *target = tail + len;
+	if (target >= final)
 	{
-		memcpy(data, tail, head - tail);
+		uint16_t first_part_len = final - tail;
+		memcpy(data, tail, first_part_len);
+		memcpy(data + first_part_len, __ring_buffer.data, len - first_part_len);
+		
+		target = __ring_buffer.data + len - first_part_len;
 	}
 	else
 	{
-		uint16_t first_part_len = __ring_buffer.data + __ring_buffer.max_len - tail;
-		memcpy(data, tail, first_part_len);
-		memcpy(data + first_part_len, __ring_buffer.data, head - __ring_buffer.data);
+		memcpy(data, tail, len);
 	}
-	atomic_store(&__ring_buffer.tail, head);
+	atomic_store(&__ring_buffer.tail, target);
 	return;
 }
 
@@ -59,10 +63,11 @@ void peripheral_nus_received_data_listener(struct bt_conn *conn, const void *dat
 	ARG_UNUSED(conn);
 	ARG_UNUSED(ctx);
 
+	uint8_t *final = __ring_buffer.data + __ring_buffer.max_len;
 	uint8_t *head = atomic_load(&__ring_buffer.head);
-	if (head + len > __ring_buffer.data + __ring_buffer.max_len)
+	if (head + len > final)
 	{
-		uint16_t first_part_len = __ring_buffer.data + __ring_buffer.max_len - head;
+		uint16_t first_part_len = final - head;
 		memcpy(head, data, first_part_len);
 		memcpy(__ring_buffer.data, (uint8_t *) data + first_part_len, len - first_part_len);
 		atomic_store(&__ring_buffer.head, __ring_buffer.data + len - first_part_len);
@@ -70,10 +75,13 @@ void peripheral_nus_received_data_listener(struct bt_conn *conn, const void *dat
 	else
 	{
 		memcpy(head, data, len);
-		head += len;
 		if (head == __ring_buffer.data + __ring_buffer.max_len)
 		{
 			atomic_store(&__ring_buffer.head, __ring_buffer.data);
+		}
+		else
+		{
+			atomic_store(&__ring_buffer.head, head + len);
 		}
 	}
 	return;

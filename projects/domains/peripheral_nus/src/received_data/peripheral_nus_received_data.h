@@ -18,7 +18,7 @@ void peripheral_nus_received_data_get_len(uint16_t *len);
  * 
  * @param data 
  */
-void peripheral_nus_received_data_get_data(uint8_t *data);
+void peripheral_nus_received_data_get_data(uint8_t *data, uint16_t len);
 
 void peripheral_nus_received_data_listener(struct bt_conn *conn, const void *data, uint16_t len, void *ctx);
 

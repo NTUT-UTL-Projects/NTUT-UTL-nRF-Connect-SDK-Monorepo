@@ -237,9 +237,9 @@ void commands_runner(void)
 				#include "ad5940_controller_const.h"
 				ad5940_controller_trigger_para.AfeCtrlSet = LPDAC2LPTIA_AfeCtrlSet;
 				
-				LPDAC2LPTIA_AFERefCfg(&(ad5940_controller_trigger_para.aferef_cfg));
+				AD5940_LPDAC2LPTIA_AFERefCfg(&(ad5940_controller_trigger_para.aferef_cfg));
 
-				LPDAC2LPTIA_LPDACCfg_Type(&(ad5940_controller_trigger_para.lploop_cfg.LpDacCfg));
+				AD5940_LPDAC2LPTIA_LPDACCfg_Type(&(ad5940_controller_trigger_para.lploop_cfg.LpDacCfg));
 				ad5940_controller_trigger_para.lploop_cfg.LpDacCfg.DacData12Bit = 0x0000;
 				ad5940_controller_trigger_para.lploop_cfg.LpDacCfg.DacData6Bit = 0x0000;
 				ad5940_controller_trigger_para.lploop_cfg.LpDacCfg.LpDacRef = LPDACREF_2P5;
@@ -248,7 +248,7 @@ void commands_runner(void)
 				ad5940_controller_const_LPLoopCfg_Type_methylene_blue(
 					&(ad5940_controller_trigger_para.lploop_cfg)
 				);
-				LPDAC2LPTIA_LPAmpCfg_Type(
+				AD5940_LPDAC2LPTIA_LPAmpCfg_Type(
 					&(ad5940_controller_trigger_para.lploop_cfg.LpAmpCfg), 
 					ad5940_controller_trigger_para.lploop_cfg.LpAmpCfg.LpTiaRtia
 				);

@@ -23,6 +23,12 @@ add_subdirectory(
     peripheral_nus
 )
 
+# watchdog
+add_subdirectory(
+    ${ROOT_DIR}/domains/watchdog/src
+    watchdog
+)
+
 # add_subdirectory(
 #     ${ROOT_DIR}/utils/gpio/src
 #     gpio

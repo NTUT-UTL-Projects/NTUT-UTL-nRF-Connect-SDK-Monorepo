@@ -30,6 +30,8 @@ typedef struct
 
     void (*circuit_reboot)(void);
 
+    void (*log)(const char *format, ...);
+
     main_commands_buffer_ctx *main_commands_buffer_ctx;
 
     vice_commands_buffer_ctx *vice_commands_buffer_ctx;

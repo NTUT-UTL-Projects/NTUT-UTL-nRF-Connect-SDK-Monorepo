@@ -14,8 +14,8 @@ extern "C"
 
 typedef struct
 {
-    uint8_t *buffer;
     volatile atomic_bool *allow_execute_flag;
+    uint8_t *buffer;
     volatile atomic_uint_fast16_t *curr_len;
     uint16_t max_len;
 } vice_commands_buffer_ctx;
@@ -35,6 +35,10 @@ typedef struct
     void (*ad5940_trigger_pre_event)(void);
 
     void (*delay_unit)();
+
+    void (*log)(const char *format, ...);
+    void *(*malloc)(size_t size);
+    void (*free)(void *ptr);
 
     vice_commands_buffer_ctx *vice_commands_buffer_ctx;
 } vice_commands_ctx;

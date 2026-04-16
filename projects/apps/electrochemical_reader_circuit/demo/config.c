@@ -1,6 +1,8 @@
 #include "config.h"
 
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define SEQGenBuffLen 1000
@@ -42,14 +44,16 @@ vice_commands_buffer_ctx vice_commands_buff_ctx = {
     .max_len = VICE_BUFFER_LEN,
 };
 
-void delay(void)
+static void delay(void)
 {
     struct timespec ts;
     ts.tv_sec = 0;
-    ts.tv_nsec = 1;
+    ts.tv_nsec = 1E2;
     // nanosleep suspends the calling thread
     nanosleep(&ts, NULL);
 }
+
+typedef void (*_log_ptr)(const char *format, ...);
 
 vice_commands_ctx vice_ctx = {
 	.ad5940_adc_curr_len = &ad5940_adc_curr_len,
@@ -57,10 +61,13 @@ vice_commands_ctx vice_ctx = {
 	.ad5940_controller_cal_para = &ad5940_controller_cal_para,
 	.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
 	.delay_unit = delay,
+    .free = free,
     .HsRtiaCal = &HsRtiaCal,
+    .log = (_log_ptr) printf,
     .LpDacPara = &LpDacPara,
     .LpRtiaCal = &LpRtiaCal,
     .vice_commands_buffer_ctx = &vice_commands_buff_ctx,
+    .malloc = malloc,
 };
 
 main_commands_buffer_ctx main_commands_buff_ctx = {
@@ -70,11 +77,12 @@ main_commands_buffer_ctx main_commands_buff_ctx = {
 
 main_commands_ctx main_ctx = {
 	.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
-	.ad5940_stop = run_none,
-	.circuit_reboot = run_none,
     .ad5940_reset_option = AD5940_CONTROLLER_RESET_OPTION_HAREWARE,
     .ad5940_SEQGenBuff = SEQGenBuff,
     .ad5940_SEQGenBuffLen = SEQGenBuffLen,
-    .vice_commands_buffer_ctx = &vice_commands_buff_ctx,
+	.ad5940_stop = run_none,
+	.circuit_reboot = run_none,
+    .log = (_log_ptr) printf,
     .main_commands_buffer_ctx = &main_commands_buff_ctx,
+    .vice_commands_buffer_ctx = &vice_commands_buff_ctx,
 };

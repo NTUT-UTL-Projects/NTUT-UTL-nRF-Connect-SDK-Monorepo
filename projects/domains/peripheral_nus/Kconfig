@@ -1,0 +1,19 @@
+#
+# Copyright (c) 2018 Nordic Semiconductor
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+source "Kconfig.zephyr"
+
+menu "Nordic Peripheral NUS Demo"
+
+config MY_COMMON_DEMO
+	bool "Build for Common Demo"
+	default n
+
+config MY_RECEIVED_DATA_DEMO
+	bool "Build for Received Data Demo"
+	default n
+
+endmenu

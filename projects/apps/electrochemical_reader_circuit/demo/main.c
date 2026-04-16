@@ -112,7 +112,7 @@ static AD5940_CONTROLLER_EVENT ad5940_controller_event = {
 // --------------------------------------------------
 // Commands
 
-#define DEMO_delay 1E5
+#define DEMO_delay 60 * 1E3
 
 // --------------------------------------------------
 // Main

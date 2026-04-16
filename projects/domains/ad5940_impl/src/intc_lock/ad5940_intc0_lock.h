@@ -5,9 +5,9 @@ extern "C"
 {
 #endif
 
-int ad5940_intc0_lock_boardcast(void);
+int AD5940_intc0_lock_boardcast(void);
 
-int ad5940_intc0_lock_wait(void);
+int AD5940_intc0_lock_wait(void);
 
 #ifdef __cplusplus
 }

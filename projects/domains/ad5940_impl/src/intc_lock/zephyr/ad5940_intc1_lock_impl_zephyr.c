@@ -6,7 +6,7 @@
 static K_MUTEX_DEFINE(_mutex);
 static K_CONDVAR_DEFINE(_condvar);
 
-int ad5940_intc1_lock_init_impl_zephyr(void)
+int AD5940_intc1_lock_init_impl_zephyr(void)
 {
     int err = 0;
     err = k_mutex_init(&_mutex);
@@ -16,7 +16,7 @@ int ad5940_intc1_lock_init_impl_zephyr(void)
     return 0;
 }
 
-int ad5940_intc1_lock_boardcast(void)
+int AD5940_intc1_lock_boardcast(void)
 {
     k_mutex_lock(&_mutex, K_FOREVER);
     k_condvar_broadcast(&_condvar);
@@ -24,7 +24,7 @@ int ad5940_intc1_lock_boardcast(void)
     return 0;
 }
 
-int ad5940_intc1_lock_wait(void)
+int AD5940_intc1_lock_wait(void)
 {
     k_mutex_lock(&_mutex, K_FOREVER);
     k_condvar_wait(&_condvar, &_mutex, K_FOREVER);
