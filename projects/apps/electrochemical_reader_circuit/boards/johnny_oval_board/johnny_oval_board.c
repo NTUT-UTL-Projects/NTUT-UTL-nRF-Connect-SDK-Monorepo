@@ -25,9 +25,6 @@ int ad5940_gpio_init(void)
 {
     int err;
 
-	err = AD5940_intc1_lock_init_impl_zephyr();
-	if (err) return err;
-
 	err = AD5940_intc1_impl_zephyr_init(
 		&ad5940_gpio7_ctx,
 		&ad5940_gpio7_dt,
