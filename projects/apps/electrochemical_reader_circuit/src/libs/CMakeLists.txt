@@ -8,13 +8,8 @@ add_subdirectory(
     ${ROOT_DIR}/utils/ad5940_apps/src
     ad5940_apps
 )
-target_link_libraries(
-    app
-    PUBLIC
-        ad5940_apps
-)
 target_compile_definitions(
-    ad5940_apps
+    app
     PUBLIC
         CHIPSEL_594X
 )
@@ -24,19 +19,9 @@ add_subdirectory(
     ${ROOT_DIR}/domains/ad5940_controller/src
     ad5940_controller
 )
-target_link_libraries(
-    app
-    PUBLIC
-        ad5940_controller
-)
 
 # ad5940_impl
 add_subdirectory(
     ${ROOT_DIR}/domains/ad5940_impl/src
     ad5940_impl
-)
-target_link_libraries(
-    app
-    PUBLIC
-        ad5940_impl
 )

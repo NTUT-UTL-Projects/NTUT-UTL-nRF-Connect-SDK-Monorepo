@@ -2,13 +2,13 @@ file(GLOB SRC_H_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 # Headers
 target_precompile_headers(
-    ad5940_impl
+    app
     PUBLIC
         ${SRC_H_FILES}
 )
 
 target_include_directories(
-    ad5940_impl
+    app
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )

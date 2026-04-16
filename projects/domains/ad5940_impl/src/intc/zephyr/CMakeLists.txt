@@ -8,7 +8,7 @@ zephyr_library_sources(
 )
 
 target_include_directories(
-    ad5940_impl
+    app
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )

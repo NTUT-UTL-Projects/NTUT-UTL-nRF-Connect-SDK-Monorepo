@@ -1,22 +1,18 @@
-if(NOT TARGET ad5940_controller)
-    add_library(ad5940_controller)
-endif()
-
 # ========================================
 # Libraries
 
 # ad5940_apps
-if(NOT TARGET ad5940_apps)
-    add_subdirectory(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/ad5940_apps
-        ad5940_apps
-    )
-endif()
-target_link_libraries(
-    ad5940_controller
-    PUBLIC
-        ad5940_apps
-)
+# if(NOT TARGET ad5940_apps)
+#     add_subdirectory(
+#         ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/ad5940_apps
+#         ad5940_apps
+#     )
+# endif()
+# target_link_libraries(
+#     app
+#     PUBLIC
+#         ad5940_apps
+# )
 
 # electrochemical_dev_kit
 FetchContent_Declare(
@@ -36,7 +32,7 @@ target_compile_definitions(
 )
 
 target_link_libraries(
-    ad5940_controller
+    app
     PUBLIC
         electrochemical_dev_kit
 )
@@ -44,13 +40,13 @@ target_link_libraries(
 # ========================================
 # Headers
 target_precompile_headers(
-    ad5940_controller
+    app
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/ad5940_controller.h
 )
 
 target_include_directories(
-    ad5940_controller
+    app
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )

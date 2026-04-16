@@ -9,12 +9,8 @@ if(NOT ad5940lib_POPULATED)
     FetchContent_Populate(ad5940lib)
 endif()
 
-if(NOT TARGET ad5940_apps)
-    add_library(ad5940_apps)
-endif()
-
 target_sources(
-    ad5940_apps
+    app
     PRIVATE
         ${ad5940lib_SOURCE_DIR}/ad5940.c
     PUBLIC
@@ -29,18 +25,18 @@ target_sources(
 # Math library
 find_library(m m)
 if(m)
-    target_link_libraries(ad5940_apps PUBLIC m)
+    target_link_libraries(app PUBLIC m)
 endif()
 
 # Subdirectories
 target_precompile_headers(
-    ad5940_apps
+    app
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/ad5940_apps.h
 )
 
 target_include_directories(
-    ad5940_apps
+    app
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )

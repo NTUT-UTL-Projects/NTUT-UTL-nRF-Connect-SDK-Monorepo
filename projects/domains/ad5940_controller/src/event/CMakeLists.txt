@@ -2,7 +2,7 @@ file(GLOB_RECURSE SRC_C_FILES CONFIGURE_DEPENDS "*.c")
 file(GLOB_RECURSE SRC_H_FILES CONFIGURE_DEPENDS "*.h")
 
 target_sources(
-    ad5940_controller
+    app
     PRIVATE
         ${SRC_C_FILES}
     PUBLIC

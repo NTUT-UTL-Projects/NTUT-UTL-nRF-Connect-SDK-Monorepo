@@ -25,7 +25,7 @@ void create_next_node(void *(*malloc)(size_t size), _node *curr_node, uint8_t *n
 void vice_commands_handler(const vice_commands_ctx *const ctx)
 {
     uint16_t len = atomic_load(ctx->vice_commands_buffer_ctx->curr_len);
-    uint8_t _temp_buffer[len];
+    uint8_t *_temp_buffer = ctx->malloc(len);
     ctx->log("vice_command[%d]\n", len);
 
     memcpy(
@@ -44,7 +44,7 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
 
     while (true)
     {
-        if (atomic_load(ctx->vice_commands_buffer_ctx->allow_execute_flag) == false)
+        if (!atomic_load(ctx->vice_commands_buffer_ctx->allow_execute_flag))
         {
             ctx->log("- NOT allowed.\n");
             break;
@@ -52,8 +52,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
         ctx->log("- Allowed.\n");
 
         ctx->log("- - - - %p\n", curr_node->curr_ptr);
-        if (curr_node->next != NULL) ctx->log("- - - - %p\n", curr_node->next->curr_ptr);
-        if (curr_node->prev != NULL) ctx->log("- - - - %p\n", curr_node->prev->curr_ptr);
+        // if (curr_node->next != NULL) ctx->log("- - - - %p\n", curr_node->next->curr_ptr);
+        // if (curr_node->prev != NULL) ctx->log("- - - - %p\n", curr_node->prev->curr_ptr);
 
         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) curr_node->curr_ptr[0];
         ctx->log("- vice_command: %d\n", vice_command);
@@ -306,6 +306,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
         curr_node->next = NULL;
     }
     ctx->free(head.node);
+
+    ctx->free(_temp_buffer);
 
     atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, false);
 }

@@ -2,7 +2,7 @@ file(GLOB SRC_C_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
 file(GLOB SRC_H_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 target_sources(
-    ad5940_impl
+    app
     PRIVATE
         ${SRC_C_FILES}
     PUBLIC
