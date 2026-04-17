@@ -348,7 +348,7 @@ AD5940Err AD5940_controller_trigger(
     {
         WUPTCfg_Type wupt_cfg;
 
-        float t_interval;
+        ELECTROCHEMICAL_DEV_KIT_TIME_TYPE t_interval;
         t_interval = ELECTROCHEMICAL_DEV_KIT_dpv_get_t_interval(&para->event.param.dpv);
 
         /* Configure Wakeup Timer */
