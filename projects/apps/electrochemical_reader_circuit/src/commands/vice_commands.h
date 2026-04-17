@@ -19,6 +19,7 @@ extern "C"
     X(delay) \
     X(shift) \
 	X(calibrate_ad5940) \
+	X(stop_ad5940) \
     X(trigger_ad5940_controller)
 
 typedef enum {

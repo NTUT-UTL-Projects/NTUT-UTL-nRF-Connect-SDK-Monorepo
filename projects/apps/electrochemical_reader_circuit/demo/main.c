@@ -128,7 +128,7 @@ int main(void)
                 .param = {
                     .temperature = {
                         .n_step = 1,
-                        .t_interval = 0.1,
+                        .t_interval = 0.01,
                         .TEMPSENS = 0,
                     },
                 },
@@ -252,6 +252,13 @@ int main(void)
                 len += sizeof(delay);
             }
         }
+        // {
+        //     VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_stop_ad5940;
+        //     main_buffer[len] = main_command;
+        //     len++;
+        //     main_buffer[len] = vice_command;
+        //     len++;
+        // }
     }
 
     {

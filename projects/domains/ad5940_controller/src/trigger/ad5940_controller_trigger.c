@@ -272,7 +272,7 @@ AD5940Err AD5940_controller_trigger(
                 .clks_cal = clks_cal,
                 .EnterSleepEn = para->EnterSleepEn,
                 .TemperatureEn = bTRUE,
-                .AfeCtrlSet = 0,
+                .AfeCtrlSet = AFECTRL_SINC2NOTCH,
                 .SeqId = ADC_SEQID,
                 .SeqRamAddr = SeqRamAddr,
             },

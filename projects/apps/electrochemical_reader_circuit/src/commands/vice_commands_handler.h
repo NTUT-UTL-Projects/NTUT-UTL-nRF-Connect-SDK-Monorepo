@@ -34,6 +34,8 @@ typedef struct
 
     void (*ad5940_trigger_pre_task)(void);
 
+    void (*ad5940_stop)(void);
+
     void (*delay_unit)();
     void (*delay_unit_pre_task)(void);
 

@@ -60,6 +60,7 @@ vice_commands_ctx vice_ctx = {
 	.ad5940_adc_target_len = &ad5940_adc_target_len,
 	.ad5940_controller_cal_para = &ad5940_controller_cal_para,
 	.ad5940_controller_trigger_para = &ad5940_controller_trigger_para,
+    .ad5940_stop = run_none,
     .ad5940_trigger_pre_task = run_none,
 	.delay_unit = delay,
     .delay_unit_pre_task = run_none,

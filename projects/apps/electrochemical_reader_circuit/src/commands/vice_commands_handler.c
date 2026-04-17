@@ -274,6 +274,17 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                 break;
             }
             // --------------------------------------------------
+            // stop
+            case VICE_COMMANDS_stop_ad5940:
+            {
+                ctx->log("- - stop_ad5940\n");
+                
+                ctx->ad5940_stop();
+                create_next_node(ctx->malloc, curr_node, curr_node->curr_ptr + 1);
+                curr_node = curr_node->next;
+                break;
+            }
+            // --------------------------------------------------
             // trigger
             case VICE_COMMANDS_trigger_ad5940_controller:
             {
