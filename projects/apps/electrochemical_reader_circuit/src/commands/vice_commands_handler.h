@@ -32,9 +32,10 @@ typedef struct
     volatile atomic_uint_fast16_t *ad5940_adc_target_len;
     volatile atomic_uint_fast16_t *ad5940_adc_curr_len;
 
-    void (*ad5940_trigger_pre_event)(void);
+    void (*ad5940_trigger_pre_task)(void);
 
     void (*delay_unit)();
+    void (*delay_unit_pre_task)(void);
 
     void (*log)(const char *format, ...);
     void *(*malloc)(size_t size);

@@ -203,6 +203,7 @@ AD5940Err AD5940_controller_cal(
         //     if(err != AD5940ERR_OK) return err;
         // }
 
+        if (write.lploop_cfg->LpAmpCfg.LpTiaRtia != LPTIARTIA_OPEN)
         {
             LPRTIACal_Type LPRTIACal;
             AD5940_write_LPRTIACal_Type(
@@ -224,26 +225,27 @@ AD5940Err AD5940_controller_cal(
             if(err != AD5940ERR_OK) return err;
         }
 
-        // {
-        //     HSRTIACal_Type HSRTIACal;
-        //     AD5940_write_HSRTIACal_Type(
-        //         (AD5940_write_HSRTIACal_Type_Para) {
-        //             .bPolarResult = _bPolarResult,
-        //             .bWithCtia = para.bWithCtia,
-        //             .DftCfg = write.dsp_cfg->DftCfg,
-        //             .fFreq = fFreq,
-        //             .fRcal = para.fRcal,
-        //             .freq_results = adc_imp_check_freq_results,
-        //             .HsTiaCfg = write.hsloop_cfg->HsTiaCfg,
-        //         },
-        //         &HSRTIACal
-        //     );
-        //     err = AD5940_HSRtiaCal(
-        //         &HSRTIACal, 
-        //         &results->HsRtiaCal
-        //     );
-        //     if(err != AD5940ERR_OK) return err;
-        // }
+        if (write.hsloop_cfg->HsTiaCfg.HstiaRtiaSel != HSTIARTIA_OPEN)
+        {
+            HSRTIACal_Type HSRTIACal;
+            AD5940_write_HSRTIACal_Type(
+                (AD5940_write_HSRTIACal_Type_Para) {
+                    .bPolarResult = _bPolarResult,
+                    .bWithCtia = para.bWithCtia,
+                    .DftCfg = write.dsp_cfg->DftCfg,
+                    .fFreq = fFreq,
+                    .fRcal = para.fRcal,
+                    .freq_results = adc_imp_check_freq_results,
+                    .HsTiaCfg = write.hsloop_cfg->HsTiaCfg,
+                },
+                &HSRTIACal
+            );
+            err = AD5940_HSRtiaCal(
+                &HSRTIACal, 
+                &results->HsRtiaCal
+            );
+            if(err != AD5940ERR_OK) return err;
+        }
 
         // {
         //     LPDACCal_Type LPDACCal;

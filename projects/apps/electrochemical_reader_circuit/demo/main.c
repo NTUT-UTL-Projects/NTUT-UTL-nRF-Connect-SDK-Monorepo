@@ -416,6 +416,20 @@ int main(void)
         len += sizeof(lploop_cfg);
     }
     {
+        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_calibrate_ad5940;
+        main_buffer[len] = main_command;
+        len++;
+        main_buffer[len] = vice_command;
+        len++;
+    }
+    {
+        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_trigger_ad5940_controller;
+        main_buffer[len] = main_command;
+        len++;
+        main_buffer[len] = vice_command;
+        len++;
+    }
+    {
         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
         main_buffer[len] = main_command;
         len++;

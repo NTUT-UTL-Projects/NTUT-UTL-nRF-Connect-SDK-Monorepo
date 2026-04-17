@@ -206,8 +206,9 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
 
                 for (size_t i = 0; i < delay_number; i++)
                 {
+                    ctx->delay_unit_pre_task();
                     ctx->delay_unit();
-                    if (atomic_load(ctx->vice_commands_buffer_ctx->allow_execute_flag) == false)
+                    if (!atomic_load(ctx->vice_commands_buffer_ctx->allow_execute_flag))
                     {
                         break;
                     }
@@ -263,6 +264,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                     *ctx->LpRtiaCal = results.LpRtiaCal;
                     *ctx->HsRtiaCal = results.HsRtiaCal;
                     *ctx->LpDacPara = results.LpDacPara;
+                    ctx->ad5940_controller_trigger_para->LFOSCClkFreq = results.LFOSCClkFreq;
+                    ctx->ad5940_controller_trigger_para->RatioSys2AdcClk = results.RatioSys2AdcClk;
                 }
 
                 create_next_node(ctx->malloc, curr_node, curr_node->curr_ptr + 1);
@@ -280,7 +283,7 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                     ctx->ad5940_controller_trigger_para->event
                 ));
                 atomic_store(ctx->ad5940_adc_curr_len, 0);
-                ctx->ad5940_trigger_pre_event();
+                ctx->ad5940_trigger_pre_task();
                 AD5940Err err = AD5940_controller_trigger(
                     ctx->ad5940_controller_trigger_para
                 );

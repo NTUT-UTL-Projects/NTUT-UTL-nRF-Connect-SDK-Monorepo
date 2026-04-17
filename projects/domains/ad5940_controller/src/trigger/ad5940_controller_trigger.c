@@ -342,6 +342,8 @@ AD5940Err AD5940_controller_trigger(
     }
 
     #undef ADC_SEQID
+    #undef CV_0_SEQID
+    #undef CV_1_SEQID
     #undef DPV_STEP_SEQID
     #undef DPV_PULSE_SEQID
 
