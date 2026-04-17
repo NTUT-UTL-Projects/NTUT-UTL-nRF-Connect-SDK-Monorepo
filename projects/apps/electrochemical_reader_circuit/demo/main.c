@@ -1,15 +1,8 @@
 #include "config.h"
+#include "setting.h"
 
 #include <stdio.h>
 #include <string.h>
-
-// --------------------------------------------------
-// DAC to TIA
-
-#define DEMO_USE_LPDAC true
-#define DEMO_USE_LPTIA false
-#define DEMO_USE_HSDAC false
-#define DEMO_USE_HSTIA true
 
 // --------------------------------------------------
 // ADC
@@ -27,19 +20,7 @@
 // --------------------------------------------------
 // AD5940 Controller
 
-static AD5940_CONTROLLER_EVENT ad5940_controller_event = {
-    .event = AD5940_CONTROLLER_EVENT_DPV,
-    .param = {
-        .dpv = {
-            .e_begin = 0.2,
-            .e_pulse = 0.05,
-            .e_step = 0.01,
-            .t_pulse = 0.01,
-            .t_step = 0.02,
-            .n_step = 10,
-        }
-    }
-};
+static AD5940_CONTROLLER_EVENT ad5940_controller_event;
 
 // --------------------------------------------------
 // HS Loop
@@ -119,349 +100,363 @@ static AD5940_CONTROLLER_EVENT ad5940_controller_event = {
 // --------------------------------------------------
 // Main
 
+Setting setting = {0};
+
 int main(void)
 {
     MAIN_COMMANDS_ENUM main_command = (MAIN_COMMANDS_ENUM) MAIN_COMMANDS_WRITE_VICE_BUFF;
     uint16_t len = 0;
+
+    // TODO
+    // Johnny board needs to trigger GPIO multiple time at started to make the following task work.
     {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_AfeCtrlSet;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+        {
+            setting.dsp_cfg.ADCBaseCfg.ADCPga = DEMO_ADCPga;
+            /* Initialize ADC filters */
+            setting.dsp_cfg.ADCFilterCfg.ADCAvgNum = DEMO_ADCAvgNum;
+            setting.dsp_cfg.ADCFilterCfg.ADCRate = DEMO_ADCRate;
+            setting.dsp_cfg.ADCFilterCfg.ADCSinc2Osr = DEMO_ADCSinc2Osr;
+            setting.dsp_cfg.ADCFilterCfg.ADCSinc3Osr = DEMO_ADCSinc3Osr;
+            setting.dsp_cfg.ADCFilterCfg.BpNotch = DEMO_BpNotch;
+            setting.dsp_cfg.ADCFilterCfg.BpSinc3 = DEMO_BpSinc3;
+            setting.dsp_cfg.ADCFilterCfg.Sinc2NotchEnable = DEMO_Sinc2NotchEnable;
 
-        #if (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
-        uint32_t AfeCtrlSet = 0 | AFECTRL_HSTIAPWR;
-        #else
-        uint32_t AfeCtrlSet = 0;
-        #endif
+            setting_temperature(&setting);
 
-        memcpy(
-            main_buffer + len,
-            &AfeCtrlSet,
-            sizeof(AfeCtrlSet)
-        );
-        len += sizeof(AfeCtrlSet);
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_aferef_cfg;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+            ad5940_controller_event = (AD5940_CONTROLLER_EVENT) {
+                .event = AD5940_CONTROLLER_EVENT_TEMPERATURE,
+                .param = {
+                    .temperature = {
+                        .n_step = 1,
+                        .t_interval = 0.1,
+                        .TEMPSENS = 0,
+                    },
+                },
+            };
+        }
 
-        // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/afe_dac_tia/ad5940_electrochemical_utils_afe_dac_tia.c
-        AFERefCfg_Type aferef_cfg = {
-            /**
-             * Enable the high-precision voltage references.
-             * Refer to page 25 and Figure 37 (page 87) of the datasheet.
-             */
-            .HpBandgapEn = bTRUE,
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_AfeCtrlSet;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-            /**
-             * Recommended high-precision buffer settings.
-             * Refer to page 87 of the datasheet for details.
-             */
-            .Hp1V1BuffEn = bTRUE,
-            .Hp1V8BuffEn = bTRUE,
-            .Disc1V1Cap = bFALSE,
-            .Disc1V8Cap = bFALSE,
-            .Hp1V8ThemBuff = bFALSE,
-            .Hp1V8Ilimit = bFALSE,
-            .Lp1V1BuffEn = bFALSE,
-            .Lp1V8BuffEn = bFALSE,
+            memcpy(
+                main_buffer + len,
+                &setting.AfeCtrlSet,
+                sizeof(setting.AfeCtrlSet)
+            );
+            len += sizeof(setting.AfeCtrlSet);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_aferef_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+
+            memcpy(
+                main_buffer + len,
+                &setting.aferef_cfg,
+                sizeof(setting.aferef_cfg)
+            );
+            len += sizeof(setting.aferef_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_dsp_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+
+            memcpy(
+                main_buffer + len,
+                &setting.dsp_cfg,
+                sizeof(setting.dsp_cfg)
+            );
+            len += sizeof(setting.dsp_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_event;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+
+            memcpy(
+                main_buffer + len,
+                &ad5940_controller_event,
+                sizeof(ad5940_controller_event)
+            );
+            len += sizeof(ad5940_controller_event);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_hsloop_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+
+            memcpy(
+                main_buffer + len,
+                &setting.hsloop_cfg,
+                sizeof(setting.hsloop_cfg)
+            );
+            len += sizeof(setting.hsloop_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_lploop_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
             
-            // LP reference control - turn off them to save power
-            .LpRefBoostEn = bFALSE,
+            memcpy(
+                main_buffer + len,
+                &setting.lploop_cfg,
+                sizeof(setting.lploop_cfg)
+            );
+            len += sizeof(setting.lploop_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_calibrate_ad5940;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+        }
+        for (size_t i = 0; i < 10; i++)
+        {
+            {
+                VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_trigger_ad5940_controller;
+                main_buffer[len] = main_command;
+                len++;
+                main_buffer[len] = vice_command;
+                len++;
+            }
+            {
+                VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
+                main_buffer[len] = main_command;
+                len++;
+                main_buffer[len] = vice_command;
+                len++;
 
-            // @see page 34 of the datasheet, With bias voltage
-            #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
-            .LpBandgapEn = bTRUE,
-            .LpRefBufEn = bTRUE,
-            #else
-            .LpBandgapEn = bFALSE,
-            .LpRefBufEn = bFALSE,
-            #endif
-        };
+                VICE_COMMANDS_DELAY_TYPE delay = 0.5 * 1E3;
 
-        memcpy(
-            main_buffer + len,
-            &aferef_cfg,
-            sizeof(aferef_cfg)
-        );
-        len += sizeof(aferef_cfg);
+                memcpy(
+                    main_buffer + len,
+                    &delay,
+                    sizeof(delay)
+                );
+                len += sizeof(delay);
+            }
+        }
     }
+
     {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_dsp_cfg;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+        {
+            setting.dsp_cfg.ADCBaseCfg.ADCPga = DEMO_ADCPga;
+            /* Initialize ADC filters */
+            setting.dsp_cfg.ADCFilterCfg.ADCAvgNum = DEMO_ADCAvgNum;
+            setting.dsp_cfg.ADCFilterCfg.ADCRate = DEMO_ADCRate;
+            setting.dsp_cfg.ADCFilterCfg.ADCSinc2Osr = DEMO_ADCSinc2Osr;
+            setting.dsp_cfg.ADCFilterCfg.ADCSinc3Osr = DEMO_ADCSinc3Osr;
+            setting.dsp_cfg.ADCFilterCfg.BpNotch = DEMO_BpNotch;
+            setting.dsp_cfg.ADCFilterCfg.BpSinc3 = DEMO_BpSinc3;
+            setting.dsp_cfg.ADCFilterCfg.Sinc2NotchEnable = DEMO_Sinc2NotchEnable;
 
-        // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
-        // Refers to https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
-        DSPCfg_Type dsp_cfg = {
-            .ADCBaseCfg = {
-                #if (defined(DEMO_USE_LPTIA) && (DEMO_USE_LPTIA == true))
-                .ADCMuxN = ADCMUXN_LPTIA0_N,
-                .ADCMuxP = ADCMUXP_LPTIA0_P,
-                #elif (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
-                .ADCMuxN = ADCMUXN_HSTIA_N,
-                .ADCMuxP = ADCMUXP_HSTIA_P,
-                #endif
-                .ADCPga = DEMO_ADCPga,
-            },
-            .ADCFilterCfg = {
-                .ADCSinc3Osr = DEMO_ADCSinc3Osr,
-                .ADCRate = DEMO_ADCRate,
-                .BpSinc3 = DEMO_BpSinc3,
-                .Sinc2NotchEnable = DEMO_Sinc2NotchEnable,
-                .BpNotch = DEMO_BpNotch,
-                .ADCSinc2Osr = DEMO_ADCSinc2Osr,
-                .ADCAvgNum = DEMO_ADCAvgNum,
-            },
-        };
+            // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
+            setting.hsloop_cfg = (HSLoopCfg_Type) {
+                .HsDacCfg = {0},
+                .HsTiaCfg = {
+                    .DiodeClose = DEMO_DiodeClose,
+                    .ExtRtia = DEMO_ExtRtia,
+                    .HstiaCtia = DEMO_HstiaCtia,
+                    .HstiaDeRload = DEMO_HstiaDeRload,
+                    .HstiaDeRtia = DEMO_HstiaDeRtia,
+                    .HstiaRtiaSel = DEMO_HstiaRtiaSel,
 
-        memcpy(
-            main_buffer + len,
-            &dsp_cfg,
-            sizeof(dsp_cfg)
-        );
-        len += sizeof(dsp_cfg);
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_event;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+                    #if defined(CHIPSEL_M355)
+                    .HstiaDe1Rtia = DEMO_HstiaDe1Rtia
+                    .HstiaDe1Rload = DEMO_HstiaDe1Rload,
+                    #endif
+                },
+                .SWMatCfg = {
+                    .Tswitch = DEMO_Tswitch,
+                },
+                .WgCfg = {0},
+            };
 
-        AD5940_CONTROLLER_EVENT event = ad5940_controller_event;
+            setting.lploop_cfg = (LPLoopCfg_Type) {
+                .LpAmpCfg = {
+                    #if defined(CHIPSEL_M355)
+                    .LpAmpSel,
+                    #endif
+                    .LpAmpPwrMod = DEMO_LpAmpPwrMod,
+                    .LpTiaRf = DEMO_LpTiaRf,
+                    .LpTiaRload = DEMO_LpTiaRload,
+                    .LpTiaRtia = DEMO_LpTiaRtia,
+                },
+                .LpDacCfg = {
+                    .LpDacRef = DEMO_LpDacRef,
+                    #if defined(CHIPSEL_M355)
+                    .LpdacSel = DEMO_LpdacSel,
+                    #endif
+                    .LpDacSrc = DEMO_LpDacSrc,
+                },
+            };
 
-        memcpy(
-            main_buffer + len,
-            &event,
-            sizeof(event)
-        );
-        len += sizeof(event);
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_hsloop_cfg;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+            BoolFlag use_lpdac = bTRUE;
+            BoolFlag use_lptia = bFALSE;
+            BoolFlag use_hsdac = bFALSE;
+            BoolFlag use_hstia = bTRUE;
+            setting_electrochemical(&setting, use_lpdac, use_lptia, use_hsdac, use_hstia);
 
-        // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
-        HSLoopCfg_Type hsloop_cfg = {
-            #if (defined(DEMO_USE_HSDAC) && (DEMO_USE_HSDAC == true))
-            .HsDacCfg = {0},
-            #endif
-            #if (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
-            .HsTiaCfg = {
-                .DiodeClose = DEMO_DiodeClose,
-                .ExtRtia = DEMO_ExtRtia,
-                .HstiaCtia = DEMO_HstiaCtia,
-                .HstiaDeRload = DEMO_HstiaDeRload,
-                .HstiaDeRtia = DEMO_HstiaDeRtia,
-                .HstiaRtiaSel = DEMO_HstiaRtiaSel,
+            ad5940_controller_event = (AD5940_CONTROLLER_EVENT) {
+                .event = AD5940_CONTROLLER_EVENT_DPV,
+                .param = {
+                    .dpv = {
+                        .e_begin = 0.2,
+                        .e_pulse = 0.05,
+                        .e_step = 0.01,
+                        .t_pulse = 0.01,
+                        .t_step = 0.02,
+                        .n_step = 10,
+                    }
+                }
+            };
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_AfeCtrlSet;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-                #if defined(CHIPSEL_M355)
-                .HstiaDe1Rtia = DEMO_HstiaDe1Rtia
-                .HstiaDe1Rload = DEMO_HstiaDe1Rload,
-                #endif
+            memcpy(
+                main_buffer + len,
+                &setting.AfeCtrlSet,
+                sizeof(setting.AfeCtrlSet)
+            );
+            len += sizeof(setting.AfeCtrlSet);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_aferef_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-                // @see page 45 of the datasheet, With bias voltage */
-                #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
-                .HstiaBias = HSTIABIAS_VZERO0,
-                #else
-                .HstiaBias = HSTIABIAS_1P1,
-                #endif
-            },
-            /** 
-             * Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_electrode_routing.h
-             * @note
-             * - For detailed configuration guidance, refer to the datasheet:
-             *   - Pages 30–52: Overview of LPLoop and HSLoop configurations
-             *   - Pages 74–76: Electrochemical sensor setup and switch matrix configuration
-             * - See Figure 36 (Page 76) for the switch matrix routing diagram.
-             */
-            .SWMatCfg = {
-                #if (defined(DEMO_USE_HSDAC) && (DEMO_USE_HSDAC == true))
-                .Dswitch = DEMO_Dswitch,
-                .Nswitch = DEMO_Nswitch,
-                .Pswitch = DEMO_Pswitch,
-                #endif
-                #if (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
-                .Tswitch = DEMO_Tswitch,
-                #endif
-            },
-            #if (defined(DEMO_USE_HSDAC) && (DEMO_USE_HSDAC == true))
-            .WgCfg = {0},
-            #endif
-            #endif
-        };
+            memcpy(
+                main_buffer + len,
+                &setting.aferef_cfg,
+                sizeof(setting.aferef_cfg)
+            );
+            len += sizeof(setting.aferef_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_dsp_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-        memcpy(
-            main_buffer + len,
-            &hsloop_cfg,
-            sizeof(hsloop_cfg)
-        );
-        len += sizeof(hsloop_cfg);
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_lploop_cfg;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+            memcpy(
+                main_buffer + len,
+                &setting.dsp_cfg,
+                sizeof(setting.dsp_cfg)
+            );
+            len += sizeof(setting.dsp_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_event;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-        /**
-         * @note 
-         * Refers to page 45 of the datasheet.
-         * 
-         * ```
-         * Note that the high speed DAC signal chain must never be used
-         * in conjunction with the low power TIA. The high speed DAC can
-         * become unstable, leading to incorrect measurements.
-         * ```
-         */
-        LPLoopCfg_Type lploop_cfg = {
-            .LpAmpCfg = {
-                #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
-                #if defined(CHIPSEL_M355)
-                .LpAmpSel,
-                #else
-                .LpAmpSel = LPAMP0,
-                #endif
-                .LpAmpPwrMod = DEMO_LpAmpPwrMod,
-                .LpPaPwrEn = bTRUE,
-                #endif
-                #if (defined(DEMO_USE_LPTIA) && (DEMO_USE_LPTIA == true)) && (!defined(DEMO_USE_HSDAC) || (DEMO_USE_HSDAC == false))
-                .LpTiaPwrEn = bTRUE,
-                .LpTiaRf = DEMO_LpTiaRf,
-                .LpTiaRload = DEMO_LpTiaRload,
-                .LpTiaRtia = DEMO_LpTiaRtia,
-                #if defined(DEMO_LpTiaRtia) && (DEMO_LpTiaRtia == LPTIARTIA_OPEN)
-                .LpTiaSW = 0
-                    | LPTIASW(2)
-                    | LPTIASW(4)
-                    | LPTIASW(5)
-                    | LPTIASW(9)
-                    // | LPTIASW(12)
-                    // | LPTIASW(13)
-                #else
-                .LpTiaSW = 0
-                    | LPTIASW(2)
-                    | LPTIASW(4)
-                    | LPTIASW(5)
-                    // | LPTIASW(12)
-                    // | LPTIASW(13)
-                #endif
-                #else
-                .LpTiaPwrEn = bFALSE,
-                .LpTiaRf = 0,
-                .LpTiaRload = 0,
-                .LpTiaRtia = 0,
-                .LpTiaSW = 0
-                    | LPTIASW(2)
-                    | LPTIASW(4)
+            memcpy(
+                main_buffer + len,
+                &ad5940_controller_event,
+                sizeof(ad5940_controller_event)
+            );
+            len += sizeof(ad5940_controller_event);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_hsloop_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-                    // When using LPDAC with HATIA to start the electrochemical reaction, 
-                    // close LPTIASW(6) to prevent the signal from being generated on SE0.
-                    | LPTIASW(6)
+            memcpy(
+                main_buffer + len,
+                &setting.hsloop_cfg,
+                sizeof(setting.hsloop_cfg)
+            );
+            len += sizeof(setting.hsloop_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_lploop_cfg;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+            
+            memcpy(
+                main_buffer + len,
+                &setting.lploop_cfg,
+                sizeof(setting.lploop_cfg)
+            );
+            len += sizeof(setting.lploop_cfg);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_calibrate_ad5940;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_trigger_ad5940_controller;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-                    | LPTIASW(7)
-                ,
-                #endif
-            },
-            #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
-            .LpDacCfg = {
-                .DacData12Bit = 0x00,
-                .DacData6Bit = 0x00,
-                .DataRst = bFALSE,                     // Do not reset data register
-                .LpDacRef = DEMO_LpDacRef,
-                #if defined(CHIPSEL_M355)
-                .LpdacSel = DEMO_LpdacSel,
-                #else
-                .LpdacSel = LPDAC0,
-                #endif
-                .LpDacSrc = DEMO_LpDacSrc,
-                // Refer to page 39 of the datasheet, LPPA receives feedback to support LPDAC in producing a precise output signal.
-                #if (defined(DEMO_USE_LPTIA) && (DEMO_USE_LPTIA == true))
-                .LpDacSW = 0 
-                        | LPDACSW_VBIAS2LPPA 
-                        | LPDACSW_VZERO2LPTIA
-                    ,
-                #elif (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
-                .LpDacSW = 0
-                    | LPDACSW_VBIAS2LPPA 
-                    | LPDACSW_VZERO2HSTIA
-                ,
-                #else
-                .LpDacSW = 0 
-                    | LPDACSW_VBIAS2LPPA
-                ,
-                #endif
-                .LpDacVbiasMux = LPDACVBIAS_12BIT,
-                .LpDacVzeroMux = LPDACVZERO_6BIT,
-                .PowerEn = bTRUE,                      // Power up
-            },
-            #endif
-        };
-        
-        memcpy(
-            main_buffer + len,
-            &lploop_cfg,
-            sizeof(lploop_cfg)
-        );
-        len += sizeof(lploop_cfg);
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_calibrate_ad5940;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_trigger_ad5940_controller;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+            VICE_COMMANDS_DELAY_TYPE delay = DEMO_delay;
 
-        VICE_COMMANDS_DELAY_TYPE delay = DEMO_delay;
+            memcpy(
+                main_buffer + len,
+                &delay,
+                sizeof(delay)
+            );
+            len += sizeof(delay);
+        }
+        {
+            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_shift;
+            main_buffer[len] = main_command;
+            len++;
+            main_buffer[len] = vice_command;
+            len++;
 
-        memcpy(
-            main_buffer + len,
-            &delay,
-            sizeof(delay)
-        );
-        len += sizeof(delay);
-    }
-    {
-        VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_shift;
-        main_buffer[len] = main_command;
-        len++;
-        main_buffer[len] = vice_command;
-        len++;
+            VICE_COMMANDS_SHIFT_TYPE shift = 2;
 
-        VICE_COMMANDS_SHIFT_TYPE shift = 2;
-
-        memcpy(
-            main_buffer + len,
-            &shift,
-            sizeof(shift)
-        );
-        len += sizeof(shift);
+            memcpy(
+                main_buffer + len,
+                &shift,
+                sizeof(shift)
+            );
+            len += sizeof(shift);
+        }
     }
 
     main_ctx.main_commands_buffer_ctx->len = len;

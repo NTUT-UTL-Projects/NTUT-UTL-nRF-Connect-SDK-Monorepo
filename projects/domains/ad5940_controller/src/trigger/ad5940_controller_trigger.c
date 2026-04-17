@@ -5,8 +5,6 @@ AD5940Err AD5940_controller_trigger(
     AD5940_CONTROLLER_TRIGGER_PARA *const para
 )
 {
-    AD5940Err err = AD5940ERR_OK;
-
 	// ========================================
     /* Wakeup AFE by read register, read 10 times at most */
     if(AD5940_WakeUp(10) > 10) return AD5940ERR_WAKEUP;  /* Wakeup Failed */
@@ -86,6 +84,8 @@ AD5940Err AD5940_controller_trigger(
             (AD5940_ADCSEQCmdWrite_Para) {
                 .clks_cal = clks_cal,
                 .EnterSleepEn = para->EnterSleepEn,
+                .TemperatureEn = bFALSE,
+                .AfeCtrlSet = AFECTRL_SINC2NOTCH,
                 .SeqId = ADC_SEQID,
                 .SeqRamAddr = SeqRamAddr,
             },
@@ -113,6 +113,8 @@ AD5940Err AD5940_controller_trigger(
             (AD5940_ADCSEQCmdWrite_Para) {
                 .clks_cal = clks_cal,
                 .EnterSleepEn = para->EnterSleepEn,
+                .TemperatureEn = bFALSE,
+                .AfeCtrlSet = AFECTRL_SINC2NOTCH,
                 .SeqId = ADC_SEQID,
                 .SeqRamAddr = SeqRamAddr,
             },
@@ -190,6 +192,8 @@ AD5940Err AD5940_controller_trigger(
             (AD5940_ADCSEQCmdWrite_Para) {
                 .clks_cal = clks_cal,
                 .EnterSleepEn = para->EnterSleepEn,
+                .TemperatureEn = bFALSE,
+                .AfeCtrlSet = AFECTRL_SINC2NOTCH,
                 .SeqId = ADC_SEQID,
                 .SeqRamAddr = SeqRamAddr,
             },
@@ -244,6 +248,35 @@ AD5940Err AD5940_controller_trigger(
             DPV_PULSE_SEQID,
             SeqRamAddr + SEQLEN_ONESTEP,
             SEQLEN_ONESTEP
+        );
+        break;
+    }
+    case AD5940_CONTROLLER_EVENT_TEMPERATURE:
+    {
+        uint32_t SeqRamAddr = 0;
+        uint32_t SeqLen;
+
+        ClksCalInfo_Type clks_cal;
+        AD5940_write_ClksCalInfo_Type(
+            (AD5940_write_ClksCalInfo_Type_Para) {
+                .DataCount = 1,
+                .DataType = para->DataType,
+                .dsp_cfg = para->dsp_cfg,
+                .RatioSys2AdcClk = para->RatioSys2AdcClk,
+            },
+            &clks_cal
+        );
+
+        AD5940_ADCSEQCmdWrite(
+            (AD5940_ADCSEQCmdWrite_Para) {
+                .clks_cal = clks_cal,
+                .EnterSleepEn = para->EnterSleepEn,
+                .TemperatureEn = bTRUE,
+                .AfeCtrlSet = 0,
+                .SeqId = ADC_SEQID,
+                .SeqRamAddr = SeqRamAddr,
+            },
+            &SeqLen
         );
         break;
     }
@@ -334,6 +367,18 @@ AD5940Err AD5940_controller_trigger(
         wupt_cfg.SeqxWakeupTime[DPV_PULSE_SEQID] = (uint32_t)(para->LFOSCClkFreq * (t_interval - para->event.param.dpv.t_pulse - SAMPLE_DELAY)) - 1;
         #undef SAMPLE_DELAY
 
+        AD5940_WUPTCfg(&wupt_cfg);
+        break;
+    }
+    case AD5940_CONTROLLER_EVENT_TEMPERATURE:
+    {
+        /* Configure Wakeup Timer*/
+        WUPTCfg_Type wupt_cfg;
+        wupt_cfg.WuptEn = bTRUE;
+        wupt_cfg.WuptEndSeq = WUPTENDSEQ_A;
+        wupt_cfg.WuptOrder[0] = ADC_SEQID;
+        wupt_cfg.SeqxSleepTime[ADC_SEQID] = 1; /* The minimum value is 1. Do not set it to zero. Set it to 1 will spend 2 32kHz clock. */
+        wupt_cfg.SeqxWakeupTime[ADC_SEQID] = (uint32_t)(para->LFOSCClkFreq * para->event.param.temperature.t_interval) - 1;
         AD5940_WUPTCfg(&wupt_cfg);
         break;
     }

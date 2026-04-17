@@ -14,11 +14,15 @@ AD5940Err AD5940_ADCSEQCmdWrite(
 
 	AD5940_SEQGenCtrl(bTRUE);
     
-	AD5940_AFECtrlS(AFECTRL_ADCPWR | AFECTRL_SINC2NOTCH, bTRUE);
-	AD5940_SEQGenInsert(SEQ_WAIT(16*250));  /* wait 250us for reference power up */
-	AD5940_AFECtrlS(AFECTRL_ADCCNV, bTRUE);  /* Start ADC convert and DFT */
+	if(para.EnterSleepEn) AD5940_SEQGenInsert(SEQ_WAIT(16*200));  /* Time for reference settling(if ad5940 is just wake up from hibernate mode) */
+
+	AD5940_AFECtrlS(AFECTRL_ADCPWR | para.AfeCtrlSet, bTRUE);
+	AD5940_SEQGenInsert(SEQ_WAIT(16*100));  /* wait 100us for reference power up */
+	AD5940_AFECtrlS(AFECTRL_ADCCNV | (para.TemperatureEn ? AFECTRL_TEMPCNV : 0), bTRUE);  /* Start ADC convert and DFT */
 	AD5940_SEQGenInsert(SEQ_WAIT(WaitClks));  /* wait for first data ready */
-	AD5940_AFECtrlS(AFECTRL_ADCPWR | AFECTRL_ADCCNV | AFECTRL_SINC2NOTCH, bFALSE);  /* Stop ADC */
+	AD5940_AFECtrlS(AFECTRL_ADCPWR | (para.TemperatureEn ? AFECTRL_TEMPCNV : 0) | para.AfeCtrlSet, bFALSE);  /* Stop ADC */
+    AD5940_SEQGenInsert(SEQ_WAIT(20));			/* Add some delay before put AD5940 to hibernate, needs some clock_cfg to move data to FIFO. */
+	AD5940_AFECtrlS(AFECTRL_ADCCNV, bFALSE);
 
     if(para.EnterSleepEn) AD5940_EnterSleepS();/* Goto hibernate */
     

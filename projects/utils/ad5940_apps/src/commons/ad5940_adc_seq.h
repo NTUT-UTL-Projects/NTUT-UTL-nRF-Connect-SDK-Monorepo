@@ -13,6 +13,8 @@ typedef struct
 {
     ClksCalInfo_Type clks_cal;
     BoolFlag EnterSleepEn;
+	BoolFlag TemperatureEn;
+	uint32_t AfeCtrlSet;
     uint32_t SeqId;
 	uint32_t SeqRamAddr;
 } AD5940_ADCSEQCmdWrite_Para;
