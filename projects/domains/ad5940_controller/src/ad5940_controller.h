@@ -9,6 +9,7 @@ extern "C"
 #include "ad5940_controller_cal.h"
 #include "ad5940_controller_event.h"
 #include "ad5940_controller_reset.h"
+#include "ad5940_controller_temperature.h"
 #include "ad5940_controller_trigger.h"
 
 #ifdef __cplusplus

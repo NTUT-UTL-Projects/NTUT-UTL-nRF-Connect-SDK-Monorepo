@@ -6,8 +6,10 @@
 // --------------------------------------------------
 // DAC to TIA
 
-#define DEMO_USE_LPDAC
-#define DEMO_USE_HSTIA
+#define DEMO_USE_LPDAC true
+#define DEMO_USE_LPTIA false
+#define DEMO_USE_HSDAC false
+#define DEMO_USE_HSTIA true
 
 // --------------------------------------------------
 // ADC
@@ -128,7 +130,7 @@ int main(void)
         main_buffer[len] = vice_command;
         len++;
 
-        #if defined(DEMO_USE_HSTIA)
+        #if (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
         uint32_t AfeCtrlSet = 0 | AFECTRL_HSTIAPWR;
         #else
         uint32_t AfeCtrlSet = 0;
@@ -173,7 +175,7 @@ int main(void)
             .LpRefBoostEn = bFALSE,
 
             // @see page 34 of the datasheet, With bias voltage
-            #if defined(DEMO_USE_LPDAC)
+            #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
             .LpBandgapEn = bTRUE,
             .LpRefBufEn = bTRUE,
             #else
@@ -200,10 +202,10 @@ int main(void)
         // Refers to https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
         DSPCfg_Type dsp_cfg = {
             .ADCBaseCfg = {
-                #if defined(DEMO_USE_LPTIA)
+                #if (defined(DEMO_USE_LPTIA) && (DEMO_USE_LPTIA == true))
                 .ADCMuxN = ADCMUXN_LPTIA0_N,
                 .ADCMuxP = ADCMUXP_LPTIA0_P,
-                #elif defined(DEMO_USE_HSTIA)
+                #elif (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
                 .ADCMuxN = ADCMUXN_HSTIA_N,
                 .ADCMuxP = ADCMUXP_HSTIA_P,
                 #endif
@@ -252,10 +254,10 @@ int main(void)
 
         // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
         HSLoopCfg_Type hsloop_cfg = {
-            #if defined(DEMO_USE_HSDAC)
+            #if (defined(DEMO_USE_HSDAC) && (DEMO_USE_HSDAC == true))
             .HsDacCfg = {0},
             #endif
-            #if defined(DEMO_USE_HSTIA)
+            #if (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
             .HsTiaCfg = {
                 .DiodeClose = DEMO_DiodeClose,
                 .ExtRtia = DEMO_ExtRtia,
@@ -270,7 +272,7 @@ int main(void)
                 #endif
 
                 // @see page 45 of the datasheet, With bias voltage */
-                #if defined(DEMO_USE_LPDAC)
+                #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
                 .HstiaBias = HSTIABIAS_VZERO0,
                 #else
                 .HstiaBias = HSTIABIAS_1P1,
@@ -285,16 +287,16 @@ int main(void)
              * - See Figure 36 (Page 76) for the switch matrix routing diagram.
              */
             .SWMatCfg = {
-                #if defined(DEMO_USE_HSDAC)
+                #if (defined(DEMO_USE_HSDAC) && (DEMO_USE_HSDAC == true))
                 .Dswitch = DEMO_Dswitch,
                 .Nswitch = DEMO_Nswitch,
                 .Pswitch = DEMO_Pswitch,
                 #endif
-                #if defined(DEMO_USE_HSTIA)
+                #if (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
                 .Tswitch = DEMO_Tswitch,
                 #endif
             },
-            #if defined(DEMO_USE_HSDAC)
+            #if (defined(DEMO_USE_HSDAC) && (DEMO_USE_HSDAC == true))
             .WgCfg = {0},
             #endif
             #endif
@@ -326,7 +328,7 @@ int main(void)
          */
         LPLoopCfg_Type lploop_cfg = {
             .LpAmpCfg = {
-                #if defined(DEMO_USE_LPDAC)
+                #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
                 #if defined(CHIPSEL_M355)
                 .LpAmpSel,
                 #else
@@ -335,7 +337,7 @@ int main(void)
                 .LpAmpPwrMod = DEMO_LpAmpPwrMod,
                 .LpPaPwrEn = bTRUE,
                 #endif
-                #if defined(DEMO_USE_LPTIA) && !defined(DEMO_USE_HSDAC)
+                #if (defined(DEMO_USE_LPTIA) && (DEMO_USE_LPTIA == true)) && (!defined(DEMO_USE_HSDAC) || (DEMO_USE_HSDAC == false))
                 .LpTiaPwrEn = bTRUE,
                 .LpTiaRf = DEMO_LpTiaRf,
                 .LpTiaRload = DEMO_LpTiaRload,
@@ -373,7 +375,7 @@ int main(void)
                 ,
                 #endif
             },
-            #if defined(DEMO_USE_LPDAC)
+            #if (defined(DEMO_USE_LPDAC) && (DEMO_USE_LPDAC == true))
             .LpDacCfg = {
                 .DacData12Bit = 0x00,
                 .DacData6Bit = 0x00,
@@ -386,12 +388,12 @@ int main(void)
                 #endif
                 .LpDacSrc = DEMO_LpDacSrc,
                 // Refer to page 39 of the datasheet, LPPA receives feedback to support LPDAC in producing a precise output signal.
-                #if defined(DEMO_USE_LPTIA)
+                #if (defined(DEMO_USE_LPTIA) && (DEMO_USE_LPTIA == true))
                 .LpDacSW = 0 
                         | LPDACSW_VBIAS2LPPA 
                         | LPDACSW_VZERO2LPTIA
                     ,
-                #elif defined(DEMO_USE_HSTIA)
+                #elif (defined(DEMO_USE_HSTIA) && (DEMO_USE_HSTIA == true))
                 .LpDacSW = 0
                     | LPDACSW_VBIAS2LPPA 
                     | LPDACSW_VZERO2HSTIA
