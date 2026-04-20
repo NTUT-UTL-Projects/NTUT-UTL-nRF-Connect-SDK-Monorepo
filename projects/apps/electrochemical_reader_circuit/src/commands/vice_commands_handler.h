@@ -18,7 +18,13 @@ typedef struct
     uint8_t *buffer;
     volatile atomic_uint_fast16_t *curr_len;
     uint16_t max_len;
-} vice_commands_buffer_ctx;
+} VICE_COMMANDS_buffer_ctx;
+
+typedef struct
+{
+    volatile atomic_uint_fast32_t *deadline;    // deadline in ms
+    volatile atomic_bool *is_working;
+} VICE_COMMANDS_state_ctx;
 typedef struct
 {
     AD5940_CONTROLLER_TRIGGER_PARA *ad5940_controller_trigger_para;
@@ -33,20 +39,20 @@ typedef struct
     volatile atomic_uint_fast16_t *ad5940_adc_curr_len;
 
     void (*ad5940_trigger_pre_task)(void);
-
     void (*ad5940_stop)(void);
 
-    void (*delay_unit)();
-    void (*delay_unit_pre_task)(void);
-
+    void (*delay)(void);
+    uint32_t delay_time_to_ms;
+    uint32_t (*get_monotonic_now)(void);    // timer in ms
     void (*log)(const char *format, ...);
     void *(*malloc)(size_t size);
     void (*free)(void *ptr);
 
-    vice_commands_buffer_ctx *vice_commands_buffer_ctx;
-} vice_commands_ctx;
+    VICE_COMMANDS_buffer_ctx *vice_commands_buffer_ctx;
+    VICE_COMMANDS_state_ctx *vice_commands_state_ctx;
+} VICE_COMMANDS_ctx;
 
-void vice_commands_handler(const vice_commands_ctx *const ctx);
+void VICE_COMMANDS_handler(const VICE_COMMANDS_ctx *const ctx);
 
 #ifdef __cplusplus
 }

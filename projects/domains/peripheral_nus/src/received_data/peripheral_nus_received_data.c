@@ -1,7 +1,10 @@
 #include "peripheral_nus_received_data.h"
 
 #include <stdatomic.h>
+#include <zephyr/kernel.h>
 
+static K_MUTEX_DEFINE(_mutex);
+static K_CONDVAR_DEFINE(_condvar);
 typedef struct
 {
 	uint8_t *data;
@@ -12,13 +15,21 @@ typedef struct
 
 static _ring_buffer __ring_buffer;
 
-void peripheral_nus_received_data_ring_buffer_init(uint8_t *const data, uint16_t max_len)
+int peripheral_nus_received_data_ring_buffer_init(uint8_t *const data, uint16_t max_len)
 {
+	// ring buffer
 	__ring_buffer.data = data;
 	__ring_buffer.max_len = max_len;
 	atomic_store(&__ring_buffer.head, data);
 	atomic_store(&__ring_buffer.tail, data);
-	return;
+
+	// lock
+	int err = 0;
+    err = k_mutex_init(&_mutex);
+    if(err) return err;
+    err = k_condvar_init(&_condvar);
+    if(err) return err;
+    return 0;
 }
 
 void peripheral_nus_received_data_get_len(uint16_t *len)
@@ -58,11 +69,21 @@ void peripheral_nus_received_data_get_data(uint8_t *data, uint16_t len)
 	return;
 }
 
+void peripheral_nus_received_data_wait_for_data(void)
+{
+	if (atomic_load(&__ring_buffer.head) != atomic_load(&__ring_buffer.tail)) return;
+	
+    k_mutex_lock(&_mutex, K_FOREVER);
+    k_condvar_wait(&_condvar, &_mutex, K_FOREVER);
+    k_mutex_unlock(&_mutex);
+}
+
 void peripheral_nus_received_data_listener(struct bt_conn *conn, const void *data, uint16_t len, void *ctx)
 {
 	ARG_UNUSED(conn);
 	ARG_UNUSED(ctx);
 
+	// ring buffer
 	uint8_t *final = __ring_buffer.data + __ring_buffer.max_len;
 	uint8_t *head = atomic_load(&__ring_buffer.head);
 	if (head + len > final)
@@ -84,5 +105,10 @@ void peripheral_nus_received_data_listener(struct bt_conn *conn, const void *dat
 			atomic_store(&__ring_buffer.head, head + len);
 		}
 	}
+
+	// lock
+	k_mutex_lock(&_mutex, K_FOREVER);
+    k_condvar_broadcast(&_condvar);
+    k_mutex_unlock(&_mutex);
 	return;
 }

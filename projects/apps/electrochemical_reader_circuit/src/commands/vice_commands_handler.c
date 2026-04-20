@@ -22,7 +22,11 @@ void create_next_node(void *(*malloc)(size_t size), _node *curr_node, uint8_t *n
     curr_node->next->prev = curr_node;
 }
 
-void vice_commands_handler(const vice_commands_ctx *const ctx)
+#define _SAFETY_AD5940_DELAY 5000
+#define _SAFETY_COMMON_DELAY 3000
+#define _SAFETY_DELAY_DELAY 5000
+
+void VICE_COMMANDS_handler(const VICE_COMMANDS_ctx *const ctx)
 {
     uint16_t len = atomic_load(ctx->vice_commands_buffer_ctx->curr_len);
     uint8_t *_temp_buffer = ctx->malloc(len);
@@ -41,6 +45,9 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
     _node *curr_node = head.node;
     curr_node->curr_ptr = _temp_buffer;
     curr_node->prev = NULL;
+
+    atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+    atomic_store(ctx->vice_commands_state_ctx->is_working, true);
 
     while (true)
     {
@@ -72,6 +79,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                 }
                 ctx->log("}\n");
 
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+
                 memcpy(
                     &ctx->ad5940_controller_trigger_para->AfeCtrlSet,
                     curr_node->curr_ptr + 1,
@@ -91,6 +100,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                     ctx->log("0x%02x, ", curr_node->curr_ptr[1 + i]);
                 }
                 ctx->log("}\n");
+
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
 
                 memcpy(
                     &ctx->ad5940_controller_trigger_para->aferef_cfg,
@@ -112,6 +123,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                 }
                 ctx->log("}\n");
 
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+
                 memcpy(
                     &ctx->ad5940_controller_trigger_para->dsp_cfg,
                     curr_node->curr_ptr + 1,
@@ -131,6 +144,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                     ctx->log("0x%02x, ", curr_node->curr_ptr[1 + i]);
                 }
                 ctx->log("}\n");
+
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
 
                 memcpy(
                     &ctx->ad5940_controller_trigger_para->event,
@@ -152,6 +167,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                 }
                 ctx->log("}\n");
 
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+
                 memcpy(
                     &ctx->ad5940_controller_trigger_para->hsloop_cfg,
                     curr_node->curr_ptr + 1,
@@ -172,6 +189,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
                 }
                 ctx->log("}\n");
 
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+
                 memcpy(
                     &ctx->ad5940_controller_trigger_para->lploop_cfg,
                     curr_node->curr_ptr + 1,
@@ -188,42 +207,44 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
             {
                 ctx->log("- - delay\n");
                 ctx->log("- - - {");
-                for (size_t i = 0; i < sizeof(VICE_COMMANDS_DELAY_TYPE); i++)
+                for (size_t i = 0; i < sizeof(COMMANDS_DELAY_TYPE); i++)
                 {
                     ctx->log("0x%02x, ", curr_node->curr_ptr[1 + i]);
                 }
                 ctx->log("}\n");
 
-                VICE_COMMANDS_DELAY_TYPE delay_number;
+                COMMANDS_DELAY_TYPE delay_number;
                 memcpy(
                     &delay_number,
                     curr_node->curr_ptr + 1,
                     sizeof(delay_number)
                 );
 
-                create_next_node(ctx->malloc, curr_node, curr_node->curr_ptr + 1 + sizeof(VICE_COMMANDS_DELAY_TYPE));
+                uint32_t delay_time = delay_number * ctx->delay_time_to_ms;
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + delay_time + _SAFETY_DELAY_DELAY);
+
+                create_next_node(ctx->malloc, curr_node, curr_node->curr_ptr + 1 + sizeof(COMMANDS_DELAY_TYPE));
                 curr_node = curr_node->next;
 
                 for (size_t i = 0; i < delay_number; i++)
                 {
-                    ctx->delay_unit_pre_task();
-                    ctx->delay_unit();
-                    if (!atomic_load(ctx->vice_commands_buffer_ctx->allow_execute_flag))
-                    {
-                        break;
-                    }
+                    ctx->delay();
+                    if (!atomic_load(ctx->vice_commands_buffer_ctx->allow_execute_flag)) break;
                 }
+
                 break;
             }
             case VICE_COMMANDS_shift:
             {
                 ctx->log("- - shift\n");
-                ctx->log("- - - {");
-                for (size_t i = 0; i < sizeof(VICE_COMMANDS_SHIFT_TYPE); i++)
-                {
-                    ctx->log("0x%02x, ", curr_node->curr_ptr[1 + i]);
-                }
-                ctx->log("}\n");
+                // ctx->log("- - - {");
+                // for (size_t i = 0; i < sizeof(VICE_COMMANDS_SHIFT_TYPE); i++)
+                // {
+                //     ctx->log("0x%02x, ", curr_node->curr_ptr[1 + i]);
+                // }
+                // ctx->log("}\n");
+
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
 
                 VICE_COMMANDS_SHIFT_TYPE shift_number;
                 memcpy(
@@ -247,6 +268,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
             case VICE_COMMANDS_calibrate_ad5940:
             {
                 ctx->log("- - calibrate_ad5940\n");
+
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_AD5940_DELAY);
 
                 AD5940_CONTROLLER_CAL_RESULTS results;
                 AD5940Err err = AD5940_controller_cal(
@@ -278,6 +301,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
             case VICE_COMMANDS_stop_ad5940:
             {
                 ctx->log("- - stop_ad5940\n");
+
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_AD5940_DELAY);
                 
                 ctx->ad5940_stop();
                 create_next_node(ctx->malloc, curr_node, curr_node->curr_ptr + 1);
@@ -289,6 +314,8 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
             case VICE_COMMANDS_trigger_ad5940_controller:
             {
                 ctx->log("- - trigger_ad5940_controller\n");
+
+                atomic_store(ctx->vice_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_AD5940_DELAY);
 
                 atomic_store(ctx->ad5940_adc_target_len, AD5940_controller_event_to_adc_number(
                     ctx->ad5940_controller_trigger_para->event
@@ -323,5 +350,6 @@ void vice_commands_handler(const vice_commands_ctx *const ctx)
 
     ctx->free(_temp_buffer);
 
+    atomic_store(ctx->vice_commands_state_ctx->is_working, false);
     atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, false);
 }

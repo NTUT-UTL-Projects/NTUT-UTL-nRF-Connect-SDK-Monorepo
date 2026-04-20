@@ -17,7 +17,13 @@ typedef struct
 {
     uint8_t *buffer;
     uint16_t len;
-} main_commands_buffer_ctx;
+} MAIN_COMMANDS_buffer_ctx;
+
+typedef struct
+{
+    volatile atomic_uint_fast32_t *deadline;    // deadline in ms
+    volatile atomic_bool *is_working;
+} MAIN_COMMANDS_state_ctx;
 typedef struct
 {
     uint32_t *ad5940_SEQGenBuff;
@@ -30,14 +36,16 @@ typedef struct
 
     void (*circuit_reboot)(void);
 
+    uint32_t (*get_monotonic_now)(void);    // timer in ms
     void (*log)(const char *format, ...);
 
-    main_commands_buffer_ctx *main_commands_buffer_ctx;
+    MAIN_COMMANDS_buffer_ctx *main_commands_buffer_ctx;
+    MAIN_COMMANDS_state_ctx *main_commands_state_ctx;
 
-    vice_commands_buffer_ctx *vice_commands_buffer_ctx;
-} main_commands_ctx;
+    VICE_COMMANDS_buffer_ctx *vice_commands_buffer_ctx;
+} MAIN_COMMANDS_ctx;
 
-void main_commands_handler(const main_commands_ctx *const ctx);
+void MAIN_COMMANDS_handler(const MAIN_COMMANDS_ctx *const ctx);
 
 #ifdef __cplusplus
 }

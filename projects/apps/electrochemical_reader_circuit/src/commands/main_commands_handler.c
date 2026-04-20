@@ -3,12 +3,18 @@
 // --------------------------------------------------
 // Commands
 
-void main_commands_handler(const main_commands_ctx *const ctx)
+#define _SAFETY_AD5940_DELAY 5000
+#define _SAFETY_COMMON_DELAY 3000
+
+void MAIN_COMMANDS_handler(const MAIN_COMMANDS_ctx *const ctx)
 {
     uint16_t len = ctx->main_commands_buffer_ctx->len;
     uint8_t *buffer = ctx->main_commands_buffer_ctx->buffer;
 
     uint16_t curr_len = 0;
+
+    atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+    atomic_store(ctx->main_commands_state_ctx->is_working, true);
 
     while (curr_len < len)
     {
@@ -21,6 +27,10 @@ void main_commands_handler(const main_commands_ctx *const ctx)
         case MAIN_COMMANDS_REBOOT:
             ctx->log("- reboot\n");
 
+            atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_AD5940_DELAY);
+
+            atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, false);
+            atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, false);
             ctx->ad5940_stop();
             ctx->circuit_reboot();
             break;
@@ -28,6 +38,9 @@ void main_commands_handler(const main_commands_ctx *const ctx)
         case MAIN_COMMANDS_RESET_AD5940:
             ctx->log("- reset AD5940\n");
 
+            atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_AD5940_DELAY);
+
+            atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, false);
             ctx->ad5940_stop();
             AD5940_controller_reset(ctx->ad5940_SEQGenBuff, ctx->ad5940_SEQGenBuffLen, ctx->ad5940_reset_option);
             break;
@@ -35,11 +48,16 @@ void main_commands_handler(const main_commands_ctx *const ctx)
         case MAIN_COMMANDS_STOP_AD5940:
             ctx->log("- stop AD5940\n");
 
+            atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_AD5940_DELAY);
+
+            atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, false);
             ctx->ad5940_stop();
             break;
 
         case MAIN_COMMANDS_CLEAR_VICE_BUFF:
             ctx->log("- clear vice_commands_buff\n");
+
+            atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
 
             memset(ctx->vice_commands_buffer_ctx->buffer, 0, ctx->vice_commands_buffer_ctx->max_len);
             atomic_store(ctx->vice_commands_buffer_ctx->curr_len, 0);
@@ -47,6 +65,8 @@ void main_commands_handler(const main_commands_ctx *const ctx)
 
         case MAIN_COMMANDS_WRITE_VICE_BUFF:
             ctx->log("- write vice_commands_buff\n");
+
+            atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
 
             VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) buffer[curr_len];
             ctx->log("- - vice_command[%d]: %d\n", curr_len, vice_command);
@@ -92,7 +112,7 @@ void main_commands_handler(const main_commands_ctx *const ctx)
                 // features
                 case VICE_COMMANDS_delay:
                 {
-                    vice_commands_write_len = sizeof(VICE_COMMANDS_DELAY_TYPE);
+                    vice_commands_write_len = sizeof(COMMANDS_DELAY_TYPE);
                     break;
                 }
                 case VICE_COMMANDS_shift:
@@ -133,6 +153,8 @@ void main_commands_handler(const main_commands_ctx *const ctx)
         case MAIN_COMMANDS_START_VICE_BUFF:
             ctx->log("- start vice_commands_buff\n");
 
+            atomic_store(ctx->main_commands_state_ctx->deadline, ctx->get_monotonic_now() + _SAFETY_COMMON_DELAY);
+
             atomic_store(ctx->vice_commands_buffer_ctx->allow_execute_flag, true);
             break;
         
@@ -140,4 +162,5 @@ void main_commands_handler(const main_commands_ctx *const ctx)
             break;
         }
     }
+    atomic_store(ctx->main_commands_state_ctx->is_working, false);
 }

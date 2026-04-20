@@ -5,9 +5,7 @@ extern "C"
 {
 #endif
 
-#include "commands_start_lock.h"
-
-int commands_start_lock_init_impl_zephyr(void);
+#define COMMANDS_DELAY_TYPE uint32_t
 
 #ifdef __cplusplus
 }

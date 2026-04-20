@@ -95,7 +95,7 @@ static AD5940_CONTROLLER_EVENT ad5940_controller_event;
 // --------------------------------------------------
 // Commands
 
-#define DEMO_delay 60 * 1E3
+#define DEMO_delay 60 * 1E1
 
 // --------------------------------------------------
 // Main
@@ -107,159 +107,159 @@ int main(void)
     MAIN_COMMANDS_ENUM main_command = (MAIN_COMMANDS_ENUM) MAIN_COMMANDS_WRITE_VICE_BUFF;
     uint16_t len = 0;
 
-    // TODO
-    // Johnny board needs to trigger GPIO multiple time at started to make the following task work.
-    {
-        {
-            setting.dsp_cfg.ADCBaseCfg.ADCPga = DEMO_ADCPga;
-            /* Initialize ADC filters */
-            setting.dsp_cfg.ADCFilterCfg.ADCAvgNum = DEMO_ADCAvgNum;
-            setting.dsp_cfg.ADCFilterCfg.ADCRate = DEMO_ADCRate;
-            setting.dsp_cfg.ADCFilterCfg.ADCSinc2Osr = DEMO_ADCSinc2Osr;
-            setting.dsp_cfg.ADCFilterCfg.ADCSinc3Osr = DEMO_ADCSinc3Osr;
-            setting.dsp_cfg.ADCFilterCfg.BpNotch = DEMO_BpNotch;
-            setting.dsp_cfg.ADCFilterCfg.BpSinc3 = DEMO_BpSinc3;
-            setting.dsp_cfg.ADCFilterCfg.Sinc2NotchEnable = DEMO_Sinc2NotchEnable;
+    // // TODO
+    // // Johnny board needs to trigger GPIO multiple time at started to make the following task work.
+    // {
+    //     {
+    //         setting.dsp_cfg.ADCBaseCfg.ADCPga = DEMO_ADCPga;
+    //         /* Initialize ADC filters */
+    //         setting.dsp_cfg.ADCFilterCfg.ADCAvgNum = DEMO_ADCAvgNum;
+    //         setting.dsp_cfg.ADCFilterCfg.ADCRate = DEMO_ADCRate;
+    //         setting.dsp_cfg.ADCFilterCfg.ADCSinc2Osr = DEMO_ADCSinc2Osr;
+    //         setting.dsp_cfg.ADCFilterCfg.ADCSinc3Osr = DEMO_ADCSinc3Osr;
+    //         setting.dsp_cfg.ADCFilterCfg.BpNotch = DEMO_BpNotch;
+    //         setting.dsp_cfg.ADCFilterCfg.BpSinc3 = DEMO_BpSinc3;
+    //         setting.dsp_cfg.ADCFilterCfg.Sinc2NotchEnable = DEMO_Sinc2NotchEnable;
 
-            setting_temperature(&setting);
+    //         setting_temperature(&setting);
 
-            ad5940_controller_event = (AD5940_CONTROLLER_EVENT) {
-                .event = AD5940_CONTROLLER_EVENT_TEMPERATURE,
-                .param = {
-                    .temperature = {
-                        .n_step = 1,
-                        .t_interval = 0.01,
-                        .TEMPSENS = 0,
-                    },
-                },
-            };
-        }
+    //         ad5940_controller_event = (AD5940_CONTROLLER_EVENT) {
+    //             .event = AD5940_CONTROLLER_EVENT_TEMPERATURE,
+    //             .param = {
+    //                 .temperature = {
+    //                     .n_step = 1,
+    //                     .t_interval = 0.01,
+    //                     .TEMPSENS = 0,
+    //                 },
+    //             },
+    //         };
+    //     }
 
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_AfeCtrlSet;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_AfeCtrlSet;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
 
-            memcpy(
-                main_buffer + len,
-                &setting.AfeCtrlSet,
-                sizeof(setting.AfeCtrlSet)
-            );
-            len += sizeof(setting.AfeCtrlSet);
-        }
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_aferef_cfg;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
+    //         memcpy(
+    //             main_buffer + len,
+    //             &setting.AfeCtrlSet,
+    //             sizeof(setting.AfeCtrlSet)
+    //         );
+    //         len += sizeof(setting.AfeCtrlSet);
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_aferef_cfg;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
 
-            memcpy(
-                main_buffer + len,
-                &setting.aferef_cfg,
-                sizeof(setting.aferef_cfg)
-            );
-            len += sizeof(setting.aferef_cfg);
-        }
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_dsp_cfg;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
+    //         memcpy(
+    //             main_buffer + len,
+    //             &setting.aferef_cfg,
+    //             sizeof(setting.aferef_cfg)
+    //         );
+    //         len += sizeof(setting.aferef_cfg);
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_dsp_cfg;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
 
-            memcpy(
-                main_buffer + len,
-                &setting.dsp_cfg,
-                sizeof(setting.dsp_cfg)
-            );
-            len += sizeof(setting.dsp_cfg);
-        }
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_event;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
+    //         memcpy(
+    //             main_buffer + len,
+    //             &setting.dsp_cfg,
+    //             sizeof(setting.dsp_cfg)
+    //         );
+    //         len += sizeof(setting.dsp_cfg);
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_event;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
 
-            memcpy(
-                main_buffer + len,
-                &ad5940_controller_event,
-                sizeof(ad5940_controller_event)
-            );
-            len += sizeof(ad5940_controller_event);
-        }
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_hsloop_cfg;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
+    //         memcpy(
+    //             main_buffer + len,
+    //             &ad5940_controller_event,
+    //             sizeof(ad5940_controller_event)
+    //         );
+    //         len += sizeof(ad5940_controller_event);
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_hsloop_cfg;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
 
-            memcpy(
-                main_buffer + len,
-                &setting.hsloop_cfg,
-                sizeof(setting.hsloop_cfg)
-            );
-            len += sizeof(setting.hsloop_cfg);
-        }
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_lploop_cfg;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
+    //         memcpy(
+    //             main_buffer + len,
+    //             &setting.hsloop_cfg,
+    //             sizeof(setting.hsloop_cfg)
+    //         );
+    //         len += sizeof(setting.hsloop_cfg);
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_WRITE_lploop_cfg;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
             
-            memcpy(
-                main_buffer + len,
-                &setting.lploop_cfg,
-                sizeof(setting.lploop_cfg)
-            );
-            len += sizeof(setting.lploop_cfg);
-        }
-        {
-            VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_calibrate_ad5940;
-            main_buffer[len] = main_command;
-            len++;
-            main_buffer[len] = vice_command;
-            len++;
-        }
-        for (size_t i = 0; i < 10; i++)
-        {
-            {
-                VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_trigger_ad5940_controller;
-                main_buffer[len] = main_command;
-                len++;
-                main_buffer[len] = vice_command;
-                len++;
-            }
-            {
-                VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
-                main_buffer[len] = main_command;
-                len++;
-                main_buffer[len] = vice_command;
-                len++;
+    //         memcpy(
+    //             main_buffer + len,
+    //             &setting.lploop_cfg,
+    //             sizeof(setting.lploop_cfg)
+    //         );
+    //         len += sizeof(setting.lploop_cfg);
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_calibrate_ad5940;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
+    //     }
+    //     for (size_t i = 0; i < 10; i++)
+    //     {
+    //         {
+    //             VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_trigger_ad5940_controller;
+    //             main_buffer[len] = main_command;
+    //             len++;
+    //             main_buffer[len] = vice_command;
+    //             len++;
+    //         }
+    //         {
+    //             VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_delay;
+    //             main_buffer[len] = main_command;
+    //             len++;
+    //             main_buffer[len] = vice_command;
+    //             len++;
 
-                VICE_COMMANDS_DELAY_TYPE delay = 0.5 * 1E3;
+    //             COMMANDS_DELAY_TYPE delay = 1.0;
 
-                memcpy(
-                    main_buffer + len,
-                    &delay,
-                    sizeof(delay)
-                );
-                len += sizeof(delay);
-            }
-        }
-        // {
-        //     VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_stop_ad5940;
-        //     main_buffer[len] = main_command;
-        //     len++;
-        //     main_buffer[len] = vice_command;
-        //     len++;
-        // }
-    }
+    //             memcpy(
+    //                 main_buffer + len,
+    //                 &delay,
+    //                 sizeof(delay)
+    //             );
+    //             len += sizeof(delay);
+    //         }
+    //     }
+    //     {
+    //         VICE_COMMANDS_ENUM vice_command = (VICE_COMMANDS_ENUM) VICE_COMMANDS_stop_ad5940;
+    //         main_buffer[len] = main_command;
+    //         len++;
+    //         main_buffer[len] = vice_command;
+    //         len++;
+    //     }
+    // }
 
     {
         {
@@ -439,7 +439,7 @@ int main(void)
             main_buffer[len] = vice_command;
             len++;
 
-            VICE_COMMANDS_DELAY_TYPE delay = DEMO_delay;
+            COMMANDS_DELAY_TYPE delay = DEMO_delay;
 
             memcpy(
                 main_buffer + len,
@@ -466,29 +466,29 @@ int main(void)
         }
     }
 
-    main_ctx.main_commands_buffer_ctx->len = len;
+    main_commands_ctx.main_commands_buffer_ctx->len = len;
 
-    main_commands_handler(&main_ctx);
-    printf("main_commands_buff_ctx[%d]: {", len);
+    MAIN_COMMANDS_handler(&main_commands_ctx);
+    printf("main_commands_buffer_ctx[%d]: {", len);
     for (size_t i = 0; i < len; i++)
     {
-        printf("0x%02x, ", main_commands_buff_ctx.buffer[i]);
+        printf("0x%02x, ", main_commands_buffer_ctx.buffer[i]);
     }
     printf("};\n");
 
     {
         uint8_t trigger = MAIN_COMMANDS_START_VICE_BUFF;
-        main_commands_buff_ctx.buffer[0] = trigger;
-        main_commands_buff_ctx.len = 1;
-        main_commands_handler(&main_ctx);
+        main_commands_buffer_ctx.buffer[0] = trigger;
+        main_commands_buffer_ctx.len = 1;
+        MAIN_COMMANDS_handler(&main_commands_ctx);
     }
 
-    vice_commands_handler(&vice_ctx);
-    printf("vice_commands_buff_ctx:[%ld]: {", vice_commands_buff_curr_len);
-    uint16_t vice_commands_buff_curr_len = atomic_load(vice_commands_buff_ctx.curr_len);
+    VICE_COMMANDS_handler(&vice_commands_ctx);
+    printf("vice_commands_buffer_ctx:[%ld]: {", vice_commands_buff_curr_len);
+    uint16_t vice_commands_buff_curr_len = atomic_load(vice_commands_buffer_ctx.curr_len);
     for (size_t i = 0; i < vice_commands_buff_curr_len; i++)
     {
-        printf("0x%02x, ", vice_commands_buff_ctx.buffer[i]);
+        printf("0x%02x, ", vice_commands_buffer_ctx.buffer[i]);
     }
     printf("};\n");
 

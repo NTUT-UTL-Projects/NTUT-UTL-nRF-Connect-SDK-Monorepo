@@ -5,6 +5,8 @@ extern "C"
 {
 #endif
 
+#include "common_commands.h"
+
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>

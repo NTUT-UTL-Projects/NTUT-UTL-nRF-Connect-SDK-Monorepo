@@ -41,13 +41,13 @@ extern uint8_t main_buffer[MAIN_BUFFER_LEN];
 
 extern void run_none(void);
 
-extern vice_commands_buffer_ctx vice_commands_buff_ctx;
+extern VICE_COMMANDS_buffer_ctx vice_commands_buffer_ctx;
 
-extern vice_commands_ctx vice_ctx;
+extern VICE_COMMANDS_ctx vice_commands_ctx;
 
-extern main_commands_buffer_ctx main_commands_buff_ctx;
+extern MAIN_COMMANDS_buffer_ctx main_commands_buffer_ctx;
 
-extern main_commands_ctx main_ctx;
+extern MAIN_COMMANDS_ctx main_commands_ctx;
 
 #ifdef __cplusplus
 }

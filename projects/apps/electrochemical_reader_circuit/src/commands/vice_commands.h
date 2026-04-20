@@ -5,6 +5,8 @@ extern "C"
 {
 #endif
 
+#include "common_commands.h"
+
 #include <stdatomic.h>
 #include <stdint.h>
 
@@ -27,8 +29,6 @@ typedef enum {
 		VICE_COMMANDS_LIST(X)
 	#undef X
 } VICE_COMMANDS_ENUM;
-
-#define VICE_COMMANDS_DELAY_TYPE uint32_t
 
 #define VICE_COMMANDS_SHIFT_TYPE uint8_t
 
