@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# Script Name: install_full_sdk_in_volume.sh
+# Script Name: install_ncs_in_volume.sh
 # ------------------------------------------------------------
 # Purpose:
 #   Install the nRF Connect SDK into the mounted volume within
@@ -9,10 +9,6 @@
 # Description:
 #   This script initializes and updates the nRF Connect SDK
 #   inside the specified working directory.
-#
-# Usage:
-#   chmod +x install_full_sdk.sh
-#   ./install_full_sdk.sh
 #
 # Notes:
 #   - This script must be run **inside the container**.
@@ -26,14 +22,14 @@
 # Configuration
 # ------------------------------
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-. "$SCRIPT_DIR/config.sh"
+. "$SCRIPT_DIR/../.devcontainer/.env"
 
 # ------------------------------
 # Check the path is existed
 # ------------------------------
-cd "$NCS_CONTAINER" || {
-  echo "Error: Unable to access $NCS_CONTAINER"
-  exit 1
+cd "$NCS_VOLUME_MOUNT_DIR" || {
+    echo "Error: Unable to access $NCS_VOLUME_MOUNT_DIR"
+    exit 1
 }
 
 # ------------------------------
@@ -85,7 +81,7 @@ done
 # West install the nRF Connect SDK
 # ------------------------------
 echo "$REVISION"
-echo "Initializing nRF Connect SDK in $NCS_CONTAINER..."
+echo "Initializing nRF Connect SDK in $NCS_VOLUME_MOUNT_DIR..."
 west init ${URL:+-m "$URL"} ${REVISION:+--mr "$REVISION"}
 
 echo "Updating SDK components..."

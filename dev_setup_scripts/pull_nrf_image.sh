@@ -5,25 +5,21 @@
 # Purpose:
 #   This script replicates the VS Code Dev Container environment
 #   for Nordic nRF Connect SDK development directly in a terminal.
-#
-# Usage:
-#   chmod +x pull_nrf_image.sh
-#   ./pull_nrf_image.sh
 # ============================================================
 
 # ------------------------------
 # Configuration
 # ------------------------------
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-. "$SCRIPT_DIR/config.sh"
+. "$SCRIPT_DIR/../.devcontainer/.env"
 
 # ------------------------------
 # Pull image from remote registry
 # ------------------------------
 echo "Pulling image '$IMAGE_NAME'..."
 if podman pull "$IMAGE_NAME" --policy=newer; then
-  echo "Image '$IMAGE_NAME' pulled successfully."
+    echo "Image '$IMAGE_NAME' pulled successfully."
 else
-  echo "Failed to pull image '$IMAGE_NAME'."
-  exit 1
+    echo "Failed to pull image '$IMAGE_NAME'."
+    exit 1
 fi

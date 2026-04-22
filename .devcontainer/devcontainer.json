@@ -1,4 +1,6 @@
 {
+  "containerUser": "root",
+
   "customizations": {
     "vscode": {
       "extensions": [
@@ -25,37 +27,15 @@
     }
   },
 
-  "image": "ghcr.io/nrfconnect/sdk-nrf-toolchain:latest",
-
-  "mounts": [
-    "source=ccache,target=/home/root/.cache/ccache,type=volume",  // Mount ccache storage
-    "source=sdk-nrf,target=/work/ncs,type=volume",                // Mount nRF Connect SDK
-    "source=SEGGER,target=/opt/SEGGER,type=volume"                // Mount SEGGER
+  "dockerComposeFile": [
+    "docker-compose.yml"
   ],
 
-  "name": "nRF Connect SDK DevContainer",
+  "overrideCommand": true,
 
-  "remoteEnv": {
-    "CCACHE_DIR": "/home/root/.cache/ccache",                                                       // ccache directory
-    "CCACHE_UMASK": "002",                                                                          // Set file permissions for shared cache
-    "PATH": "${containerEnv:PATH}:/opt/SEGGER/JLink:/home/root/.local/bin:/opt/ncs/toolchain/bin"   // Extend PATH for SDK tools
-  },
-  
-  "remoteUser": "root",
+  "service": "dev",
 
-  "runArgs": [
-    "--cap-add=SYS_PTRACE",                                     // Enable debugging capability
-    "--group-add=keep-groups",                                  // Keep host user groups
-    "--mount=type=bind,src=/dev/bus/usb,dst=/dev/bus/usb,rw",   // Allow USB device access
-    "--privileged",                                             // Run as root user
-    "--volume=/run/udev:/run/udev:ro",                          // Mount udev for device detection
-    "--security-opt", "seccomp=unconfined",                     // Disable seccomp restrictions
-    "--workdir", "/work/ncs"                                    // Set working directory (for west)
-  ],
+  "updateRemoteUserUID": true,  // Match container user UID/GID with host to prevent permission issues
 
-  "updateRemoteUserUID": true, // Match container user UID/GID with host to prevent permission issues
-
-  "workspaceFolder": "/work/ncs/app",
-
-  "workspaceMount": "source=${localWorkspaceFolder},target=/work/ncs/app,type=bind"
+  "workspaceFolder": "/work/ncs/app"
 }

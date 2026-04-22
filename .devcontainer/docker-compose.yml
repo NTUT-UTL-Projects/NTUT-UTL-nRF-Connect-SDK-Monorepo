@@ -1,0 +1,42 @@
+services:
+  dev:
+    annotations:
+      run.oci.keep_original_groups: '1' # Keep host user groups
+    container_name:
+      "${CONTAINER_NAME}"
+    cap_add:
+      - SYS_PTRACE  # Enable debugging capability
+    env_file:
+      - ".env"
+    environment:
+      - CCACHE_DIR=${CCACHE_VOLUME_MOUNT_DIR}                                                                                         # ccache directory
+      - CCACHE_UMASK=002                                                                                                              # Set file permissions for shared cache
+      - PATH=${PATH}:${SEGGER_JLINK_VOLUME_MOUNT_DIR}:/home/${USER}/.local/bin:/opt/ncs/toolchain/bin:/usr/local/sbin:/usr/sbin:/sbin # Extend PATH for SDK tools
+    image:
+      "${IMAGE_NAME}"
+    privileged:
+      true  # Run as root user
+    security_opt:
+      - seccomp:unconfined  # Disable seccomp restrictions
+    user:
+      "${USER}"
+    volumes:
+      # Mount caches
+      - ..:${WORKSPACE_MOUNT_DIR}:cached         # Mount workspace
+
+      # Mount volumes
+      - "ccache_data:${CCACHE_VOLUME_MOUNT_DIR}" # Mount ccache storage
+      - "sdk_data:${NCS_VOLUME_MOUNT_DIR}"       # Mount nRF Connect SDK
+      - "segger_data:${SEGGER_VOLUME_MOUNT_DIR}" # Mount SEGGER
+
+      # Mount devices
+      - "/dev/bus/usb:/dev/bus/usb"              # Allow USB device access
+      - "/run/udev:/run/udev:ro"                 # Mount udev for device detection
+
+volumes:
+  ccache_data:
+    name: ${CCACHE_VOLUME}
+  sdk_data:
+    name: ${NCS_VOLUME}
+  segger_data:
+    name: ${SEGGER_VOLUME}
