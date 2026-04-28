@@ -1,10 +1,9 @@
-add_library(my_commands)
-
+# Sources
 file(GLOB C_FILES CONFIGURE_DEPENDS "*.c")
 file(GLOB H_FILES CONFIGURE_DEPENDS "*.h")
 
 target_sources(
-    my_commands
+    demo
     PRIVATE
         ${C_FILES}
     PUBLIC
@@ -14,10 +13,4 @@ target_sources(
             ${CMAKE_CURRENT_SOURCE_DIR}
         FILES
             ${H_FILES}
-)
-
-target_link_libraries(
-    my_commands
-    PRIVATE
-        ad5940_controller
 )

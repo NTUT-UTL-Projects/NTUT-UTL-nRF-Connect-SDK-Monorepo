@@ -1,5 +1,3 @@
-# zephyr_library()
-
 # ========================================
 # Libraries
 
@@ -11,12 +9,7 @@ add_subdirectory(
     ${CMAKE_CURRENT_BINARY_DIR}/ad5940_apps
 )
 target_link_libraries(
-    ad5940_apps
-    PUBLIC
-        zephyr_interface
-)
-target_link_libraries(
-    app
+    demo
     PUBLIC
         ad5940_apps
 )
@@ -27,12 +20,7 @@ add_subdirectory(
     ${CMAKE_CURRENT_BINARY_DIR}/ad5940_controller
 )
 target_link_libraries(
-    ad5940_controller
-    PUBLIC
-        zephyr_interface
-)
-target_link_libraries(
-    app
+    demo
     PUBLIC
         ad5940_controller
 )
@@ -43,7 +31,7 @@ add_subdirectory(
     ${CMAKE_CURRENT_BINARY_DIR}/ad5940_intc
 )
 target_link_libraries(
-    app
+    demo
     PUBLIC
         ad5940_intc
 )
@@ -54,12 +42,7 @@ add_subdirectory(
     ${CMAKE_CURRENT_BINARY_DIR}/ad5940_lib_impl
 )
 target_link_libraries(
-    ad5940_lib
-    PUBLIC
-        zephyr_interface
-)
-target_link_libraries(
-    app
+    demo
     PUBLIC
         ad5940_lib
 )
@@ -67,4 +50,11 @@ target_compile_definitions(
     ad5940_lib
     PUBLIC
         CHIPSEL_594X
+)
+
+# my_commands
+target_link_libraries(
+    demo
+    PUBLIC
+        my_commands
 )
