@@ -1,0 +1,27 @@
+﻿---
+BasedOnStyle: LLVM
+AccessModifierOffset: 4
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Right
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Allman
+BreakStringLiterals: false
+ColumnLimit: 80
+IncludeBlocks: Regroup
+IndentCaseLabels: true
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+JavaScriptQuotes: Double
+KeepEmptyLinesAtTheStartOfBlocks: false
+Language: Cpp
+
+---

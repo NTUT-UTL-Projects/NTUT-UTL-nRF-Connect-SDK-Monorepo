@@ -1,4 +1,5 @@
 #include "ad5940_intc0_lock_impl_zephyr.h"
+
 #include "ad5940_intc.h"
 
 #include <zephyr/kernel.h>
@@ -9,10 +10,12 @@ static K_CONDVAR_DEFINE(_condvar);
 int AD5940_intc0_lock_init_impl_zephyr(void)
 {
     int err = 0;
-    err = k_mutex_init(&_mutex);
-    if(err) return err;
+    err     = k_mutex_init(&_mutex);
+    if (err)
+        return err;
     err = k_condvar_init(&_condvar);
-    if(err) return err;
+    if (err)
+        return err;
     return 0;
 }
 

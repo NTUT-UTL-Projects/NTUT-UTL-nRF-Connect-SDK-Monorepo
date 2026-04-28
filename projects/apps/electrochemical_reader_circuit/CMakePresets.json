@@ -6,6 +6,21 @@
     },
     "configurePresets": [
         {
+            "name": "build_host_demo",
+            "displayName": "Build for Host Demo",
+            "generator": "Ninja",
+            "description": "Preset to build a host demo",
+            "binaryDir": "${sourceDir}/build_host_demo",
+            "cacheVariables": {
+                "BOARD": "native_sim/native/64",
+                "CMAKE_C_FLAGS": "-fshort-enums",
+                "CMAKE_CXX_FLAGS": "-fshort-enums",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CONFIG_MY_BUILD_FAKE_IMPL": "ON",
+                "CONFIG_MY_BUILD_HOST_DEMO": "ON"
+            }
+        },
+        {
             "name": "build_johnny_oval_board",
             "displayName": "Build for Johnny Oval Board",
             "generator": "Ninja",
@@ -20,21 +35,6 @@
                 "DEBUG_THREAD_INFO": true,
                 "DTC_OVERLAY_FILE": "hardware/nrf_boards/johnny_oval_board/app.overlay",
                 "electrochemical_reader_circuit_DEBUG_THREAD_INFO": false
-            }
-        },
-        {
-            "name": "build_host_demo",
-            "displayName": "Build for Host Demo",
-            "generator": "Ninja",
-            "description": "Preset to build a host demo",
-            "binaryDir": "${sourceDir}/build_host_demo",
-            "cacheVariables": {
-                "BOARD": "native_sim/native/64",
-                "CMAKE_C_FLAGS": "-fshort-enums",
-                "CMAKE_CXX_FLAGS": "-fshort-enums",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CONFIG_MY_BUILD_FAKE_IMPL": "ON",
-                "CONFIG_MY_BUILD_HOST_DEMO": "ON"
             }
         }
     ]

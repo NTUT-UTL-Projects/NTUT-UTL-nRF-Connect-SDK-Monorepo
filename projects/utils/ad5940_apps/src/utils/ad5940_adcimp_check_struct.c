@@ -2,12 +2,12 @@
 
 void AD5940_write_DSPCfg_Type(
     AD5940_ADCIMPCheckFreq_Results freq_results,
-    DSPCfg_Type *const dsp_cfg
+    DSPCfg_Type *const             dsp_cfg
 )
 {
     // freq_results.freq_params.HighPwrMode;
-    dsp_cfg->DftCfg.DftNum = freq_results.freq_params.DftNum;
-    dsp_cfg->DftCfg.DftSrc = freq_results.freq_params.DftSrc;
+    dsp_cfg->DftCfg.DftNum            = freq_results.freq_params.DftNum;
+    dsp_cfg->DftCfg.DftSrc            = freq_results.freq_params.DftSrc;
     dsp_cfg->ADCFilterCfg.ADCSinc3Osr = freq_results.freq_params.ADCSinc3Osr;
     dsp_cfg->ADCFilterCfg.ADCSinc2Osr = freq_results.freq_params.ADCSinc2Osr;
     // freq_results.freq_params.NumClks;
@@ -28,7 +28,7 @@ void AD5940_write_DSPCfg_Type(
 // - hsdac_cfg->HsDacUpdateRate
 void AD5940_write_HSDACCfg_Type(
     AD5940_ADCIMPCheckFreq_Results freq_results,
-    HSDACCfg_Type *const hsdac_cfg
+    HSDACCfg_Type *const           hsdac_cfg
 )
 {
     // freq_results.freq_params.HighPwrMode;

@@ -1,6 +1,12 @@
 #include "setting.h"
 
-void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFlag use_lptia, BoolFlag use_hsdac, BoolFlag use_hstia)
+void setting_electrochemical(
+    Setting *const setting,
+    BoolFlag       use_lpdac,
+    BoolFlag       use_lptia,
+    BoolFlag       use_hsdac,
+    BoolFlag       use_hstia
+)
 {
     // ==================================================
     // AfeCtrlSet
@@ -12,8 +18,9 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
 
     // ==================================================
     // AFERefCfg_Type
-    // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/afe_dac_tia/ad5940_electrochemical_utils_afe_dac_tia.c
-    
+    // Refers to
+    // https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/afe_dac_tia/ad5940_electrochemical_utils_afe_dac_tia.c
+
     /**
      * Enable the high-precision voltage references.
      * Refer to page 25 and Figure 37 (page 87) of the datasheet.
@@ -24,15 +31,15 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
      * Recommended high-precision buffer settings.
      * Refer to page 87 of the datasheet for details.
      */
-    setting->aferef_cfg.Hp1V1BuffEn = bTRUE;
-    setting->aferef_cfg.Hp1V8BuffEn = bTRUE;
-    setting->aferef_cfg.Disc1V1Cap = bFALSE;
-    setting->aferef_cfg.Disc1V8Cap = bFALSE;
+    setting->aferef_cfg.Hp1V1BuffEn   = bTRUE;
+    setting->aferef_cfg.Hp1V8BuffEn   = bTRUE;
+    setting->aferef_cfg.Disc1V1Cap    = bFALSE;
+    setting->aferef_cfg.Disc1V8Cap    = bFALSE;
     setting->aferef_cfg.Hp1V8ThemBuff = bFALSE;
-    setting->aferef_cfg.Hp1V8Ilimit = bFALSE;
-    setting->aferef_cfg.Lp1V1BuffEn = bFALSE;
-    setting->aferef_cfg.Lp1V8BuffEn = bFALSE;
-    
+    setting->aferef_cfg.Hp1V8Ilimit   = bFALSE;
+    setting->aferef_cfg.Lp1V1BuffEn   = bFALSE;
+    setting->aferef_cfg.Lp1V8BuffEn   = bFALSE;
+
     // LP reference control - turn off them to save power
     setting->aferef_cfg.LpRefBoostEn = bFALSE;
 
@@ -40,19 +47,21 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
     if (use_lpdac)
     {
         setting->aferef_cfg.LpBandgapEn = bTRUE;
-        setting->aferef_cfg.LpRefBufEn = bTRUE;
+        setting->aferef_cfg.LpRefBufEn  = bTRUE;
     }
     else
     {
         setting->aferef_cfg.LpBandgapEn = bFALSE;
-        setting->aferef_cfg.LpRefBufEn = bFALSE;
+        setting->aferef_cfg.LpRefBufEn  = bFALSE;
     }
 
     // ==================================================
     // DSPCfg_Type
-    // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
-    // Refers to https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
-    
+    // Refers to
+    // https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
+    // Refers to
+    // https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
+
     if (use_lptia)
     {
         setting->dsp_cfg.ADCBaseCfg.ADCMuxN = ADCMUXN_LPTIA0_N;
@@ -75,8 +84,9 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
 
     // ==================================================
     // HSLoopCfg_Type
-    // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
-    
+    // Refers to
+    // https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
+
     if (use_hsdac)
     {
         // setting->hsloop_cfg.HsDacCfg = (HSDACCfg_Type) {
@@ -85,7 +95,7 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
     }
     else
     {
-        setting->hsloop_cfg.HsDacCfg = (HSDACCfg_Type) {0};
+        setting->hsloop_cfg.HsDacCfg = (HSDACCfg_Type){0};
     }
 
     if (use_hstia)
@@ -111,12 +121,14 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
             setting->hsloop_cfg.HsTiaCfg.HstiaBias = HSTIABIAS_1P1;
         }
 
-        /** 
-         * Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_electrode_routing.h
+        /**
+         * Refers to
+         * https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_electrode_routing.h
          * @note
          * - For detailed configuration guidance, refer to the datasheet:
          *   - Pages 30–52: Overview of LPLoop and HSLoop configurations
-         *   - Pages 74–76: Electrochemical sensor setup and switch matrix configuration
+         *   - Pages 74–76: Electrochemical sensor setup and switch matrix
+         * configuration
          * - See Figure 36 (Page 76) for the switch matrix routing diagram.
          */
         if (!use_hsdac)
@@ -136,8 +148,8 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
     }
     else
     {
-        setting->hsloop_cfg.HsTiaCfg = (HSTIACfg_Type) {0};
-        setting->hsloop_cfg.SWMatCfg = (SWMatrixCfg_Type) {0};
+        setting->hsloop_cfg.HsTiaCfg = (HSTIACfg_Type){0};
+        setting->hsloop_cfg.SWMatCfg = (SWMatrixCfg_Type){0};
     }
 
     // setting->hsloop_cfg.WgCfg = (WGCfg_Type) {
@@ -146,27 +158,28 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
 
     // ==================================================
     // LPLoopCfg_Type
-    // Refers to https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
-    
+    // Refers to
+    // https://github.com/XIAN-SHENG-576692/ad5940_applications/blob/8e6cea71d2572c06becd124dddce352dc61521c2/application/electrochemical/utils/dac_tia_adc/ad5940_electrochemical_utils_dac_tia_adc.c
+
     if (use_lpdac)
     {
-        #if defined(CHIPSEL_M355)
-        // setting->lploop_cfg.LpAmpCfg.LpAmpSel = DEMO_LpAmpSel;
-        #else
+#if defined(CHIPSEL_M355)
+// setting->lploop_cfg.LpAmpCfg.LpAmpSel = DEMO_LpAmpSel;
+#else
         setting->lploop_cfg.LpAmpCfg.LpAmpSel = LPAMP0;
-        #endif
+#endif
         // setting->lploop_cfg.LpAmpCfg.LpAmpPwrMod = DEMO_LpAmpPwrMod;
         setting->lploop_cfg.LpAmpCfg.LpPaPwrEn = bTRUE;
     }
     else
     {
-        setting->lploop_cfg.LpAmpCfg = (LPAmpCfg_Type) {0};
+        setting->lploop_cfg.LpAmpCfg = (LPAmpCfg_Type){0};
     }
 
     /**
-     * @note 
+     * @note
      * Refers to page 45 of the datasheet.
-     * 
+     *
      * ```
      * Note that the high speed DAC signal chain must never be used
      * in conjunction with the low power TIA. The high speed DAC can
@@ -179,88 +192,79 @@ void setting_electrochemical(Setting *const setting, BoolFlag use_lpdac, BoolFla
         // setting->lploop_cfg.LpAmpCfg.LpTiaRf = DEMO_LpTiaRf;
         // setting->lploop_cfg.LpAmpCfg.LpTiaRload = DEMO_LpTiaRload;
         // setting->lploop_cfg.LpAmpCfg.LpTiaRtia = DEMO_LpTiaRtia;
-        
+
         if (setting->lploop_cfg.LpAmpCfg.LpTiaRtia == LPTIARTIA_OPEN)
         {
-            setting->lploop_cfg.LpAmpCfg.LpTiaSW = 0
-                | LPTIASW(2)
-                | LPTIASW(4)
-                | LPTIASW(5)
-                | LPTIASW(9)
+            setting->lploop_cfg.LpAmpCfg.LpTiaSW =
+                0 | LPTIASW(2) | LPTIASW(4) | LPTIASW(5) | LPTIASW(9)
                 // | LPTIASW(12)
                 // | LPTIASW(13)
-            ;
+                ;
         }
         else
         {
-            setting->lploop_cfg.LpAmpCfg.LpTiaSW = 0
-                | LPTIASW(2)
-                | LPTIASW(4)
-                | LPTIASW(5)
+            setting->lploop_cfg.LpAmpCfg.LpTiaSW =
+                0 | LPTIASW(2) | LPTIASW(4) | LPTIASW(5)
                 // | LPTIASW(12)
                 // | LPTIASW(13)
-            ;
+                ;
         }
     }
     else
     {
         setting->lploop_cfg.LpAmpCfg.LpTiaPwrEn = bFALSE;
-        setting->lploop_cfg.LpAmpCfg.LpTiaRf = 0;
+        setting->lploop_cfg.LpAmpCfg.LpTiaRf    = 0;
         setting->lploop_cfg.LpAmpCfg.LpTiaRload = 0;
-        setting->lploop_cfg.LpAmpCfg.LpTiaRtia = 0;
-        setting->lploop_cfg.LpAmpCfg.LpTiaSW = 0
-            | LPTIASW(2)
-            | LPTIASW(4)
+        setting->lploop_cfg.LpAmpCfg.LpTiaRtia  = 0;
+        setting->lploop_cfg.LpAmpCfg.LpTiaSW =
+            0 | LPTIASW(2) |
+            LPTIASW(4)
 
-            // When using LPDAC with HATIA to start the electrochemical reaction, 
-            // close LPTIASW(6) to prevent the signal from being generated on SE0.
+            // When using LPDAC with HATIA to start the electrochemical
+            // reaction, close LPTIASW(6) to prevent the signal from being
+            // generated on SE0.
             | LPTIASW(6)
 
-            | LPTIASW(7)
-        ;
+            | LPTIASW(7);
     }
 
     if (use_lpdac)
     {
         setting->lploop_cfg.LpDacCfg.DacData12Bit = 0x00;
-        setting->lploop_cfg.LpDacCfg.DacData6Bit = 0x00;
-        setting->lploop_cfg.LpDacCfg.DataRst = bFALSE;                     // Do not reset data register
-        // setting->lploop_cfg.LpDacCfg.LpDacRef = DEMO_LpDacRef;
-        #if defined(CHIPSEL_M355)
-        // setting->lploop_cfg.LpDacCfg.LpdacSel = DEMO_LpdacSel;
-        #else
+        setting->lploop_cfg.LpDacCfg.DacData6Bit  = 0x00;
+        setting->lploop_cfg.LpDacCfg.DataRst =
+            bFALSE; // Do not reset data register
+// setting->lploop_cfg.LpDacCfg.LpDacRef = DEMO_LpDacRef;
+#if defined(CHIPSEL_M355)
+// setting->lploop_cfg.LpDacCfg.LpdacSel = DEMO_LpdacSel;
+#else
         setting->lploop_cfg.LpDacCfg.LpdacSel = LPDAC0;
-        #endif
+#endif
 
         // setting->lploop_cfg.LpDacCfg.LpDacSrc = DEMO_LpDacSrc;
-        // Refer to page 39 of the datasheet, LPPA receives feedback to support LPDAC in producing a precise output signal.
+        // Refer to page 39 of the datasheet, LPPA receives feedback to support
+        // LPDAC in producing a precise output signal.
         if (use_lptia)
         {
-            setting->lploop_cfg.LpDacCfg.LpDacSW = 0 
-                | LPDACSW_VBIAS2LPPA 
-                | LPDACSW_VZERO2LPTIA
-            ;
+            setting->lploop_cfg.LpDacCfg.LpDacSW =
+                0 | LPDACSW_VBIAS2LPPA | LPDACSW_VZERO2LPTIA;
         }
         else if (use_hstia)
         {
-            setting->lploop_cfg.LpDacCfg.LpDacSW = 0
-                | LPDACSW_VBIAS2LPPA 
-                | LPDACSW_VZERO2HSTIA
-            ;
+            setting->lploop_cfg.LpDacCfg.LpDacSW =
+                0 | LPDACSW_VBIAS2LPPA | LPDACSW_VZERO2HSTIA;
         }
         else
         {
-            setting->lploop_cfg.LpDacCfg.LpDacSW = 0 
-                | LPDACSW_VBIAS2LPPA
-            ;
+            setting->lploop_cfg.LpDacCfg.LpDacSW = 0 | LPDACSW_VBIAS2LPPA;
         }
 
         setting->lploop_cfg.LpDacCfg.LpDacVbiasMux = LPDACVBIAS_12BIT;
         setting->lploop_cfg.LpDacCfg.LpDacVzeroMux = LPDACVZERO_6BIT;
-        setting->lploop_cfg.LpDacCfg.PowerEn = bTRUE;                      // Power up
+        setting->lploop_cfg.LpDacCfg.PowerEn       = bTRUE; // Power up
     }
     else
     {
-        setting->lploop_cfg.LpDacCfg = (LPDACCfg_Type) {0};
+        setting->lploop_cfg.LpDacCfg = (LPDACCfg_Type){0};
     }
 }

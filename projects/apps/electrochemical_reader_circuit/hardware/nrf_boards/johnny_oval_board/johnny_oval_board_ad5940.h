@@ -9,30 +9,30 @@ extern "C"
 
 /**
  * Retrieves the value of the RCAL resistor.
- * 
- * @note 
- * Refer to page 46 of the datasheet for more details. 
+ *
+ * @note
+ * Refer to page 46 of the datasheet for more details.
  * This function must be implemented to match your specific board design.
- * 
- * @return The resistance value (in ohms) of the resistor connected between 
+ *
+ * @return The resistance value (in ohms) of the resistor connected between
  *         the RCAL0 pin and the RCAL1 pin.
  */
 #define AD5940_fRcal 10000.0
 
 /**
  * Retrieves the resistance value of the resister between RC0_0 and RC0_1.
- * 
- * @note 
- * This function must be implemented to match your specific board design. 
- * It's often use to The HSRTIA resistance is used only when the HSTIA is powered on and 
- * `HstiaRtiaSel` is set to `HSTIARTIA_OPEN`.
- * 
+ *
+ * @note
+ * This function must be implemented to match your specific board design.
+ * It's often use to The HSRTIA resistance is used only when the HSTIA is
+ * powered on and `HstiaRtiaSel` is set to `HSTIARTIA_OPEN`.
+ *
  * @return The resistance value (in ohms) of the HSRTIA.
  */
-#define AD5940_fRc0 0.0     // Our project didn't use it.
+#define AD5940_fRc0 0.0 // Our project didn't use it.
 
-// Our circuit use GPIO7 as interrupt pin.
-extern AGPIOCfg_Type AD5940_gpio_cfg;
+    // Our circuit use GPIO7 as interrupt pin.
+    extern AGPIOCfg_Type AD5940_gpio_cfg;
 
 #define AD5940_VRef1p11 1.11f
 
@@ -40,7 +40,7 @@ extern AGPIOCfg_Type AD5940_gpio_cfg;
  * Refer to pgae 87 of the datasheet.
  * This application use internal reference voltage.
  */
-#define AD5940_VRef1p82 1.82f
+#define AD5940_VRef1p82   1.82f
 #define AD5940_ADCRefVolt AD5940_VRef1p82
 
 /**

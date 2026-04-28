@@ -1,33 +1,37 @@
 #include "ad5940_controller_cal.h"
+
 #include "ad5940_utils.h"
 
 /**
- * @brief 
- * Refers to https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
- * Sample 3 period of signal, 13.317Hz here. Do not use DC method, because it needs ADC/PGA calibrated firstly(but it's faster)
+ * @brief
+ * Refers to
+ * https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_SqrWaveVoltammetry/SqrWaveVoltammetry.c
+ * Sample 3 period of signal, 13.317Hz here. Do not use DC method, because it
+ * needs ADC/PGA calibrated firstly(but it's faster)
  */
 #define _SamplePeriod 3
 
 #define _SettleTime10us 1E3
-#define _TimeOut10us 1E3
+#define _TimeOut10us    1E3
 
 #define _bPolarResult bTRUE
 
 AD5940Err AD5940_controller_cal(
-    const AD5940_CONTROLLER_CAL_PARA para,
-    const AD5940_CONTROLLER_CAL_WRITE write,
+    const AD5940_CONTROLLER_CAL_PARA     para,
+    const AD5940_CONTROLLER_CAL_WRITE    write,
     AD5940_CONTROLLER_CAL_RESULTS *const results
 )
 {
     AD5940Err err = AD5940ERR_OK;
 
-	// ========================================
+    // ========================================
     /* Wakeup AFE by read register, read 10 times at most */
-    if(AD5940_WakeUp(10) > 10) return AD5940ERR_WAKEUP;  /* Wakeup Failed */
+    if (AD5940_WakeUp(10) > 10)
+        return AD5940ERR_WAKEUP; /* Wakeup Failed */
 
     AD5940_ADCIMPCheckFreq_Results adc_imp_check_freq_results = {};
 
-	// ========================================
+    // ========================================
     // Clock
     {
         // ========================================
@@ -35,17 +39,20 @@ AD5940Err AD5940_controller_cal(
         // TODO
         // NOTE:
         // This block only for the testing.
-        // This is the new why to config the clock, but it cause gpio do not work well.
-        // This code is referenced from https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_Impedance_Adjustable_with_frequency/Impedance.c
+        // This is the new why to config the clock, but it cause gpio do not
+        // work well. This code is referenced from
+        // https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_Impedance_Adjustable_with_frequency/Impedance.c
 
         // AD5940_ADCIMPCheckFreq_Para p = {
-        //     .HFXTALEn = bFALSE, // NTUT-UTL didn't need external 
-        //     .LFOSCEn = bTRUE,   // For use with WUPT (and optionally with DAC, TIA, or ADC).
+        //     .HFXTALEn = bFALSE, // NTUT-UTL didn't need external
+        //     .LFOSCEn = bTRUE,   // For use with WUPT (and optionally with
+        //     DAC, TIA, or ADC).
         // };
-        
+
         // /**
         //  * Refer to page 55 of the datasheet.
-        //  * High power mode is only necessary for impedance measurements when the frequency exceeds 80 kHz.
+        //  * High power mode is only necessary for impedance measurements when
+        //  the frequency exceeds 80 kHz.
         //  */
         // switch (para.event)
         // {
@@ -68,14 +75,9 @@ AD5940Err AD5940_controller_cal(
         // if(err != AD5940ERR_OK) return err;
 
         // AD5940_WriteReg(REG_AFECON_CLKSEL, 0x0000);
-        // AD5940_AFEPwrBW(adc_imp_check_freq_results.AfePwr, adc_imp_check_freq_results.AfeBw);
+        // AD5940_AFEPwrBW(adc_imp_check_freq_results.AfePwr,
+        // adc_imp_check_freq_results.AfeBw);
         // AD5940_CLKCfg(&adc_imp_check_freq_results.clk_cfg);
-
-
-
-
-
-
 
         // ========================================
         // ========================================
@@ -83,88 +85,78 @@ AD5940Err AD5940_controller_cal(
         // NOTE:
         // This block only for the testing.
         // This is the old why to config the clock, but it work well.
-        // This code is referenced from https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_ChronoAmperometric/ChronoAmperometric.c
+        // This code is referenced from
+        // https://github.com/analogdevicesinc/ad5940-examples/blob/master/examples/AD5940_ChronoAmperometric/ChronoAmperometric.c
 
         AD5940_WriteReg(REG_AFECON_CLKSEL, 0x00);
 
         uint32_t AFEPWR_Const = AFEPWR_LP;
         switch (AFEPWR_Const)
         {
-        case AFEPWR_HP:
-            AD5940_HPModeEn(bTRUE);
-            adc_imp_check_freq_results.ADCRate = ADCRATE_1P6MHZ;
-            adc_imp_check_freq_results.AdcClkFreq = 3.2E7F;
-            adc_imp_check_freq_results.SysClkFreq = 1.6E7F;
-            break;
+            case AFEPWR_HP:
+                AD5940_HPModeEn(bTRUE);
+                adc_imp_check_freq_results.ADCRate    = ADCRATE_1P6MHZ;
+                adc_imp_check_freq_results.AdcClkFreq = 3.2E7F;
+                adc_imp_check_freq_results.SysClkFreq = 1.6E7F;
+                break;
 
-        case AFEPWR_LP:
-            AD5940_HPModeEn(bFALSE);
-            adc_imp_check_freq_results.ADCRate = ADCRATE_800KHZ;
-            adc_imp_check_freq_results.AdcClkFreq = 1.6E7F;
-            adc_imp_check_freq_results.SysClkFreq = 1.6E7F;
-            break;
+            case AFEPWR_LP:
+                AD5940_HPModeEn(bFALSE);
+                adc_imp_check_freq_results.ADCRate    = ADCRATE_800KHZ;
+                adc_imp_check_freq_results.AdcClkFreq = 1.6E7F;
+                adc_imp_check_freq_results.SysClkFreq = 1.6E7F;
+                break;
 
-        default:
-            return AD5940ERR_PARA;
+            default:
+                return AD5940ERR_PARA;
         }
 
-        adc_imp_check_freq_results.RatioSys2AdcClk = adc_imp_check_freq_results.SysClkFreq / adc_imp_check_freq_results.AdcClkFreq;
+        adc_imp_check_freq_results.RatioSys2AdcClk =
+            adc_imp_check_freq_results.SysClkFreq /
+            adc_imp_check_freq_results.AdcClkFreq;
 
-        adc_imp_check_freq_results.freq_params.DftNum = DFTNUM_16;
-        adc_imp_check_freq_results.freq_params.DftSrc = DFTSRC_SINC2NOTCH;
+        adc_imp_check_freq_results.freq_params.DftNum      = DFTNUM_16;
+        adc_imp_check_freq_results.freq_params.DftSrc      = DFTSRC_SINC2NOTCH;
         adc_imp_check_freq_results.freq_params.ADCSinc3Osr = ADCSINC3OSR_4;
         adc_imp_check_freq_results.freq_params.ADCSinc2Osr = ADCSINC2OSR_22;
         adc_imp_check_freq_results.freq_params.HighPwrMode = bTRUE;
-        adc_imp_check_freq_results.freq_params.NumClks = 0;
-        adc_imp_check_freq_results.HanWinEn = bTRUE;
-        adc_imp_check_freq_results.HsDacUpdateRate = 255;
+        adc_imp_check_freq_results.freq_params.NumClks     = 0;
+        adc_imp_check_freq_results.HanWinEn                = bTRUE;
+        adc_imp_check_freq_results.HsDacUpdateRate         = 255;
         // ========================================
         // ========================================
-
-
-
-
-
-
 
         // Calibrate LFOSC
         LFOSCMeasure_Type LFOSC_measure = {
-            .CalDuration = 1000,
-            .CalSeqAddr = 0x00000000,
+            .CalDuration   = 1000,
+            .CalSeqAddr    = 0x00000000,
             .SystemClkFreq = adc_imp_check_freq_results.SysClkFreq,
         };
-        err = AD5940_LFOSCMeasure(
-            &LFOSC_measure,
-            &results->LFOSCClkFreq
-        );
-        if(err != AD5940ERR_OK) return err;
+        err = AD5940_LFOSCMeasure(&LFOSC_measure, &results->LFOSCClkFreq);
+        if (err != AD5940ERR_OK)
+            return err;
     }
 
-	// ========================================
+    // ========================================
     // Set Config
-    AD5940_write_DSPCfg_Type(
-        adc_imp_check_freq_results,
-        write.dsp_cfg
-    );
+    AD5940_write_DSPCfg_Type(adc_imp_check_freq_results, write.dsp_cfg);
 
     AD5940_write_HSDACCfg_Type(
         adc_imp_check_freq_results,
         &(write.hsloop_cfg->HsDacCfg)
     );
 
-    results->ADCRate = adc_imp_check_freq_results.ADCRate;
+    results->ADCRate         = adc_imp_check_freq_results.ADCRate;
     results->RatioSys2AdcClk = adc_imp_check_freq_results.RatioSys2AdcClk;
 
-	// ========================================
+    // ========================================
     // Calibration
     // TODO
     {
         float fFreq;
-        fFreq = AD5940_fFreqCal(
-            &adc_imp_check_freq_results,
-            _SamplePeriod
-        );
-        if(err != AD5940ERR_OK) return err;
+        fFreq = AD5940_fFreqCal(&adc_imp_check_freq_results, _SamplePeriod);
+        if (err != AD5940ERR_OK)
+            return err;
 
         // // cal ADC PGA
         // {
@@ -207,44 +199,40 @@ AD5940Err AD5940_controller_cal(
         {
             LPRTIACal_Type LPRTIACal;
             AD5940_write_LPRTIACal_Type(
-                (AD5940_write_LPRTIACal_Type_Para) {
+                (AD5940_write_LPRTIACal_Type_Para){
                     .bPolarResult = _bPolarResult,
-                    .bWithCtia = para.bWithCtia,
-                    .DftCfg = write.dsp_cfg->DftCfg,
-                    .fFreq = fFreq,
-                    .fRcal = para.fRcal,
+                    .bWithCtia    = para.bWithCtia,
+                    .DftCfg       = write.dsp_cfg->DftCfg,
+                    .fFreq        = fFreq,
+                    .fRcal        = para.fRcal,
                     .freq_results = adc_imp_check_freq_results,
-                    .LpAmpCfg = write.lploop_cfg->LpAmpCfg,
+                    .LpAmpCfg     = write.lploop_cfg->LpAmpCfg,
                 },
                 &LPRTIACal
             );
-            err = AD5940_LPRtiaCal(
-                &LPRTIACal,
-                &results->LpRtiaCal
-            );
-            if(err != AD5940ERR_OK) return err;
+            err = AD5940_LPRtiaCal(&LPRTIACal, &results->LpRtiaCal);
+            if (err != AD5940ERR_OK)
+                return err;
         }
 
         if (write.hsloop_cfg->HsTiaCfg.HstiaRtiaSel != HSTIARTIA_OPEN)
         {
             HSRTIACal_Type HSRTIACal;
             AD5940_write_HSRTIACal_Type(
-                (AD5940_write_HSRTIACal_Type_Para) {
+                (AD5940_write_HSRTIACal_Type_Para){
                     .bPolarResult = _bPolarResult,
-                    .bWithCtia = para.bWithCtia,
-                    .DftCfg = write.dsp_cfg->DftCfg,
-                    .fFreq = fFreq,
-                    .fRcal = para.fRcal,
+                    .bWithCtia    = para.bWithCtia,
+                    .DftCfg       = write.dsp_cfg->DftCfg,
+                    .fFreq        = fFreq,
+                    .fRcal        = para.fRcal,
                     .freq_results = adc_imp_check_freq_results,
-                    .HsTiaCfg = write.hsloop_cfg->HsTiaCfg,
+                    .HsTiaCfg     = write.hsloop_cfg->HsTiaCfg,
                 },
                 &HSRTIACal
             );
-            err = AD5940_HSRtiaCal(
-                &HSRTIACal, 
-                &results->HsRtiaCal
-            );
-            if(err != AD5940ERR_OK) return err;
+            err = AD5940_HSRtiaCal(&HSRTIACal, &results->HsRtiaCal);
+            if (err != AD5940ERR_OK)
+                return err;
         }
 
         // {

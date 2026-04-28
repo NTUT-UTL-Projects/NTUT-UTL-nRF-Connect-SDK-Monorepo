@@ -6,11 +6,9 @@ extern "C"
 #endif
 
 #include "ad5940.h"
-
-#include "ad5940_utils.h"
-
 #include "ad5940_adc_seq.h"
 #include "ad5940_isr.h"
+#include "ad5940_utils.h"
 
 #ifdef __cplusplus
 }

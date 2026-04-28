@@ -7,7 +7,7 @@ extern "C"
 
 #include <zephyr/drivers/gpio.h>
 
-int AD5940_Rst_impl_zephyr_init(const struct gpio_dt_spec *const dt);
+    int AD5940_Rst_impl_zephyr_init(const struct gpio_dt_spec *const dt);
 
 #ifdef __cplusplus
 }

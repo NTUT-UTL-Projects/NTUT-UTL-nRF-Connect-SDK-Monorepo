@@ -5,7 +5,7 @@
 LOG_MODULE_REGISTER(ad5940_intc0, LOG_LEVEL_INF);
 
 int AD5940_intc0_impl_zephyr_init(
-    gpio_debounce_ctx_t *const ctx,
+    gpio_debounce_ctx_t *const       ctx,
     const struct gpio_dt_spec *const dt,
     void (*callback)(void)
 )
@@ -20,7 +20,8 @@ int AD5940_intc0_impl_zephyr_init(
         NULL,
         callback
     );
-    if (ret) {
+    if (ret)
+    {
         LOG_ERR("GPIO device not ready");
         return -ENODEV;
     }
