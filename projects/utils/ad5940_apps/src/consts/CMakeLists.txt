@@ -1,15 +1,21 @@
-file(GLOB SRC_C_FILES CONFIGURE_DEPENDS "*.c")
-file(GLOB SRC_H_FILES CONFIGURE_DEPENDS "*.h")
+file(GLOB C_FILES CONFIGURE_DEPENDS "*.c")
+file(GLOB H_FILES CONFIGURE_DEPENDS "*.h")
 
 target_sources(
-    app
+    ad5940_apps
     PRIVATE
-        ${SRC_C_FILES}
+        ${C_FILES}
     PUBLIC
         FILE_SET HEADERS
         TYPE HEADERS
         BASE_DIRS
             ${CMAKE_CURRENT_SOURCE_DIR}
         FILES
-            ${SRC_H_FILES}
+            ${H_FILES}
+)
+
+target_precompile_headers(
+    ad5940_apps
+    PUBLIC
+        ${H_FILES}
 )

@@ -1,25 +1,31 @@
+if(NOT TARGET ad5940_controller)
+    add_library(ad5940_controller)
+endif()
+
 # ========================================
-# Libraries
+# Library
 
 # ad5940_apps
-# if(NOT TARGET ad5940_apps)
-#     add_subdirectory(
-#         ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/ad5940_apps
-#         ad5940_apps
-#     )
-# endif()
-# target_link_libraries(
-#     app
-#     PUBLIC
-#         ad5940_apps
-# )
+if(NOT TARGET ad5940_apps)
+    add_subdirectory(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../utils/ad5940_apps/src
+        ${CMAKE_CURRENT_BINARY_DIR}/aad5940_lib
+    )
+endif()
+target_link_libraries(
+    ad5940_controller
+    PUBLIC
+        ad5940_apps
+)
 
 # electrochemical_dev_kit
-FetchContent_Declare(
-    electrochemical_dev_kit
-    URL https://github.com/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/download/latest/src.zip
-)
-FetchContent_MakeAvailable(electrochemical_dev_kit)
+if(NOT TARGET electrochemical_dev_kit)
+    FetchContent_Declare(
+        electrochemical_dev_kit
+        URL https://github.com/XIAN-SHENG-576692/Electrochemical-Dev-Kit/releases/download/latest/src.zip
+    )
+    FetchContent_MakeAvailable(electrochemical_dev_kit)
+endif()
 
 target_compile_definitions(
     electrochemical_dev_kit
@@ -32,26 +38,28 @@ target_compile_definitions(
 )
 
 target_link_libraries(
-    app
+    ad5940_controller
     PUBLIC
         electrochemical_dev_kit
 )
 
 # ========================================
-# Headers
+# Sources
+
+# Header
 target_precompile_headers(
-    app
+    ad5940_controller
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/ad5940_controller.h
 )
 
 target_include_directories(
-    app
+    ad5940_controller
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-# Sources
+# Subdirectories
 add_subdirectory(cal)
 add_subdirectory(electrochemical)
 add_subdirectory(event)

@@ -1,3 +1,4 @@
+# Sources
 target_sources(
     app
     PRIVATE
@@ -10,7 +11,10 @@ if(CONFIG_MY_BUILD_JOHNNY_OVAL_BOARD)
 endif()
 
 # Utils
-set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../..)
+set(
+    ROOT_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../..
+)
 
 # peripheral_nus
 add_subdirectory(

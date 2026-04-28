@@ -1,27 +1,7 @@
-file(GLOB C_FILES CONFIGURE_DEPENDS "*.c")
-set(C_BASENAMES "")
-foreach(FILE_PATH ${C_FILES})
-    cmake_path(GET FILE_PATH FILENAME BASENAME)
-    list(APPEND C_BASENAMES ${BASENAME})
-endforeach()
-
-file(GLOB H_FILES CONFIGURE_DEPENDS "*.h")
-set(H_BASENAMES "")
-foreach(FILE_PATH ${H_FILES})
-    cmake_path(GET FILE_PATH FILENAME BASENAME)
-    list(APPEND H_BASENAMES ${BASENAME})
-endforeach()
-
-target_sources(
+target_include_directories(
     app
-    PRIVATE
-        ${C_BASENAMES}
     PUBLIC
-        FILE_SET HEADERS
-        TYPE HEADERS
-        BASE_DIRS
-        FILES
-            ${H_BASENAMES}
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
 if(CONFIG_MY_BUILD_ZEPHYR_BASE)

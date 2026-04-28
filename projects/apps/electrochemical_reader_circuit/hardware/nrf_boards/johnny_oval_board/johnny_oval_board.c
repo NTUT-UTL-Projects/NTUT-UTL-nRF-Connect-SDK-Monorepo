@@ -1,7 +1,8 @@
 #include "johnny_oval_board.h"
 
 #include "ad5940_controller.h"
-#include "ad5940_impl.h"
+#include "ad5940_intc_impl.h"
+#include "ad5940_lib_impl.h"
 
 int ad5940_intc_init(void)
 {

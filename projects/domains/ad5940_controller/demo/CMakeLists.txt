@@ -8,13 +8,6 @@ target_compile_options(
         -O3
 )
 
-# Sources
-target_sources(
-    demo
-    PRIVATE
-        main.c
-)
-
 # Libraries
 target_link_libraries(
     demo
@@ -23,7 +16,14 @@ target_link_libraries(
 )
 
 target_compile_definitions(
-    ad5940_apps
+    ad5940_lib
     PUBLIC
         CHIPSEL_594X
+)
+
+# Sources
+target_sources(
+    demo
+    PRIVATE
+        main.c
 )
