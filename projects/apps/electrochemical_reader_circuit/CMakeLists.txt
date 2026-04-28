@@ -10,12 +10,10 @@ project(electrochemical_reader_circuit)
 
 include(FetchContent)
 
-if(CONFIG_MY_BUILD_JOHNNY_OVAL_BOARD)
-    add_subdirectory(boards)
-endif()
-
 if(CONFIG_MY_BUILD_HOST_DEMO)
     add_subdirectory(demo)
+else()
+    add_subdirectory(hardware)
 endif()
 
 add_subdirectory(src)

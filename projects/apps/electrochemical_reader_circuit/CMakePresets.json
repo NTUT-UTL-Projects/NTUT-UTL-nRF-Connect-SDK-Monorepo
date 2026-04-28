@@ -14,11 +14,11 @@
                 "BOARD": "nrf52840dk/nrf52840",
                 "CMAKE_C_FLAGS": "-fshort-enums",
                 "CMAKE_CXX_FLAGS": "-fshort-enums",
-                "CONF_FILE": "prj.conf;boards/johnny_oval_board/prj.conf;../../domains/peripheral_nus/src/prj.conf;../../domains/watchdog/src/prj.conf",
+                "CONF_FILE": "prj.conf;hardware/nrf_boards/johnny_oval_board/prj.conf;../../domains/peripheral_nus/src/prj.conf;../../domains/watchdog/src/prj.conf",
                 "CONFIG_DEBUG_OPTIMIZATIONS": true,
                 "CONFIG_DEBUG_THREAD_INFO": true,
                 "DEBUG_THREAD_INFO": true,
-                "DTC_OVERLAY_FILE": "boards/johnny_oval_board/app.overlay",
+                "DTC_OVERLAY_FILE": "hardware/nrf_boards/johnny_oval_board/app.overlay",
                 "electrochemical_reader_circuit_DEBUG_THREAD_INFO": false
             }
         },

@@ -6,7 +6,7 @@
 
 source "Kconfig.zephyr"
 
-source "${APPLICATION_SOURCE_DIR}/../../utils/Kconfig"
+source "${APPLICATION_SOURCE_DIR}/../../Kconfig"
 
 menu "Nordic UART BLE GATT service sample"
 

@@ -13,3 +13,7 @@ target_sources(
         FILES
             ${SRC_H_FILES}
 )
+
+if(CONFIG_MY_BUILD_ZEPHYR_BASE)
+    add_subdirectory(nrf_boards)
+endif()
